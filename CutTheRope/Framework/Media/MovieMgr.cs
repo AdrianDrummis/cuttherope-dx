@@ -12,7 +12,7 @@ namespace CutTheRope.Framework.Media
         {
             url = moviePath;
 
-            string videoPath = ContentPaths.GetVideoPath(moviePath, Global.ScreenSizeManager.CurrentSize.Width);
+            string videoPath = ContentPaths.GetVideoPath(moviePath);
 
             // Unload the video from ContentManager's cache before reloading
             // Without this, ContentManager returns a disposed Video instance when playing

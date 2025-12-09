@@ -150,9 +150,9 @@ namespace CutTheRope.Helpers
         /// <param name="fileName">The video filename</param>
         /// <param name="screenWidth">The screen width to determine whether to pick SD or HD files</param>
         /// <returns>The relative path to the video file</returns>
-        public static string GetVideoPath(string fileName, int screenWidth)
+        public static string GetVideoPath(string fileName)
         {
-            string videoDir = screenWidth <= 1024 ? VideoDirectory : VideoHdDirectory;
+            string videoDir = VideoHdDirectory;
             return $"{videoDir}/{fileName}";
         }
 
