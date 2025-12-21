@@ -11,6 +11,8 @@ namespace CutTheRope.Framework.Core
             v = Value;
         }
 
+#pragma warning disable CA1051
         public Vector v;
+#pragma warning restore CA1051
     }
 }
