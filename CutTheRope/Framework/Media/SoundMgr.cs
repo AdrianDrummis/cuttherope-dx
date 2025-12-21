@@ -29,6 +29,15 @@ namespace CutTheRope.Framework.Media
             _ = LoadedSounds.Remove(resId);
         }
 
+        /// <summary>
+        /// Frees a sound by its resource name.
+        /// </summary>
+        public void FreeSound(string soundResourceName)
+        {
+            int soundResID = GetResourceId(soundResourceName);
+            FreeSound(soundResID);
+        }
+
         public SoundEffect GetSound(int resId)
         {
             if (!TryResolveResource(resId, out string resourceName, out int localizedResId))

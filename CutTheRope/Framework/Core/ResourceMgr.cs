@@ -703,7 +703,7 @@ namespace CutTheRope.Framework.Core
             }
             if (Resources.IsSound(localizedName))
             {
-                Application.SharedSoundMgr().FreeSound(localizedResId);
+                Application.SharedSoundMgr().FreeSound(localizedName);
                 return;
             }
             if (s_Resources.TryGetValue(localizedResId, out object value))
