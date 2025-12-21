@@ -284,22 +284,5 @@ namespace CutTheRope.Framework.Core
                 return false;
             }
         }
-
-        /// <summary>
-        /// Instance method for compatibility. Loads preferences.
-        /// </summary>
-        public virtual void loadPreferences()
-        {
-            LoadPreferences();
-        }
-
-        /// <summary>
-        /// Instance method for compatibility. Requests save.
-        /// </summary>
-        public virtual void SavePreferences()
-        {
-            RequestSave();
-        }
-
     }
 }
