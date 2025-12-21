@@ -67,7 +67,7 @@ namespace CutTheRope.Commons
             }
         }
 
-        public static void Update(float gameTime)
+        public static void Update(float _)
         {
             Java_com_zeptolab_ctr_CtrRenderer_nativeTick(16f);
         }

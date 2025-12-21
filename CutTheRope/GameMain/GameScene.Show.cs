@@ -199,7 +199,7 @@ namespace CutTheRope.GameMain
             {
                 ((RotatedCircle)t.element).removeOnNextUpdate = true;
             }
-            foreach (object obj in tutorials)
+            foreach (object _ in tutorials)
             {
             }
         }

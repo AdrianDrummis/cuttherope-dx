@@ -11,14 +11,6 @@ namespace CutTheRope.Desktop
 {
     internal sealed class OpenGL
     {
-        public static void GlGenTextures(int n, object textures)
-        {
-        }
-
-        public static void GlBindTexture(int target, uint texture)
-        {
-        }
-
         public static void GlEnable(int cap)
         {
             if (cap == 1)
