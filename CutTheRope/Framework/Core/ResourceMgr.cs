@@ -265,18 +265,10 @@ namespace CutTheRope.Framework.Core
             }
 
             bool useAntialias;
-            CTRTexture2D.Texture2DPixelFormat pixelFormat;
-            if (parsedAtlas == null && xmlInfo != null)
-            {
-                useAntialias = (xmlInfo.AttributeAsNSString("filter").IntValue() & 1) == 1;
-                int formatValue = xmlInfo.AttributeAsNSString("format").IntValue();
-                pixelFormat = (CTRTexture2D.Texture2DPixelFormat)formatValue;
-            }
-            else
-            {
-                useAntialias = atlasConfig?.UseAntialias ?? true;
-                pixelFormat = atlasConfig?.PixelFormat ?? CTRTexture2D.kTexture2DPixelFormat_Default;
-            }
+            //CTRTexture2D.Texture2DPixelFormat pixelFormat;
+            useAntialias = parsedAtlas == null && xmlInfo != null
+                ? (xmlInfo.AttributeAsNSString("filter").IntValue() & 1) == 1
+                : atlasConfig?.UseAntialias ?? true;
 
             string text = FullPathFromRelativePath(path);
             if (useAntialias)
@@ -288,10 +280,10 @@ namespace CutTheRope.Framework.Core
                 CTRTexture2D.SetAliasTexParameters();
             }
 
-            CTRTexture2D.SetDefaultAlphaPixelFormat(pixelFormat);
+            //CTRTexture2D.SetDefaultAlphaPixelFormat(pixelFormat);
             CTRTexture2D texture2D = new CTRTexture2D().InitWithPath(text, true)
                 ?? throw new FileNotFoundException("texture not found: " + text, text);
-            CTRTexture2D.SetDefaultAlphaPixelFormat(CTRTexture2D.kTexture2DPixelFormat_Default);
+            //CTRTexture2D.SetDefaultAlphaPixelFormat(CTRTexture2D.kTexture2DPixelFormat_Default);
             if (isWvga)
             {
                 texture2D.SetWvga();
@@ -402,7 +394,7 @@ namespace CutTheRope.Framework.Core
                 quadData[index + 2] = rect.w;
                 quadData[index + 3] = rect.h;
             }
-            SetQuadsInfo(texture, quadData, quadData.Length, scaleX, scaleY);
+            SetQuadsInfo(texture, quadData, scaleX, scaleY);
 
             if (atlas.Offsets.Count == atlas.Rects.Count && atlas.HasNonZeroOffset)
             {
@@ -441,7 +433,7 @@ namespace CutTheRope.Framework.Core
                     {
                         array[j] = list[j].FloatValue();
                     }
-                    SetQuadsInfo(t, array, list.Count, scaleX, scaleY);
+                    SetQuadsInfo(t, array, scaleX, scaleY);
                 }
             }
             XElement xMLNode2 = i.FindChildWithTagNameRecursively("offsets", false);
@@ -478,7 +470,7 @@ namespace CutTheRope.Framework.Core
             return ContentPaths.GetRelativePathWithContentFolder(relPath);
         }
 
-        private static void SetQuadsInfo(CTRTexture2D t, float[] data, int size, float scaleX, float scaleY)
+        private static void SetQuadsInfo(CTRTexture2D t, float[] data, float scaleX, float scaleY)
         {
             int num = data.Length / 4;
             t.SetQuadsCapacity(num);

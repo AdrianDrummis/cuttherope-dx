@@ -172,7 +172,7 @@ namespace CutTheRope.Framework.Visual
         {
             _resName = path;
             // _name = 65536U;
-            _localTexParams = _texParams;
+            // _localTexParams = _texParams;
             Reg();
             xnaTexture_ = Images.Get(path);
             if (xnaTexture_ == null)
@@ -196,10 +196,10 @@ namespace CutTheRope.Framework.Visual
             _lowypoint = h;
             int num = CalcRealSize(w);
             int num2 = CalcRealSize(h);
-            _size = new Vector(num, num2);
+            // _size = new Vector(num, num2);
             _width = (uint)num;
             _height = (uint)num2;
-            _format = _defaultAlphaPixelFormat;
+            //_format = _defaultAlphaPixelFormat;
             _maxS = w / (float)num;
             _maxT = h / (float)num2;
             // _hasPremultipliedAlpha = true;
@@ -211,7 +211,7 @@ namespace CutTheRope.Framework.Visual
 
         public static void SetDefaultAlphaPixelFormat(Texture2DPixelFormat format)
         {
-            _defaultAlphaPixelFormat = format;
+            // _defaultAlphaPixelFormat = format;
         }
 
         public static void OptimizeMemory()
@@ -242,7 +242,7 @@ namespace CutTheRope.Framework.Visual
         {
             // _name = 65536U;
             _lowypoint = -1;
-            _localTexParams = _defaultTexParams;
+            // _localTexParams = _defaultTexParams;
             Reg();
             int num = CalcRealSize(w);
             int num2 = CalcRealSize(h);
@@ -263,8 +263,8 @@ namespace CutTheRope.Framework.Visual
             Global.GraphicsDevice.SetRenderTarget(null);
             Application.SharedRootController().transitionTime = transitionTime;
             xnaTexture_ = renderTarget;
-            _format = Texture2DPixelFormat.kTexture2DPixelFormat_RGBA8888;
-            _size = new Vector(num, num2);
+            //_format = Texture2DPixelFormat.kTexture2DPixelFormat_RGBA8888;
+            // _size = new Vector(num, num2);
             _width = (uint)num;
             _height = (uint)num2;
             _maxS = w / (float)num;
@@ -311,9 +311,9 @@ namespace CutTheRope.Framework.Visual
 
         private float _scaleY;
 
-        private Texture2DPixelFormat _format;
+        // private Texture2DPixelFormat _format;
 
-        private Vector _size;
+        // private Vector _size;
 
         // private bool _hasPremultipliedAlpha;
 
@@ -335,11 +335,11 @@ namespace CutTheRope.Framework.Visual
 
         private bool _isWvga;
 
-        private TexParams _localTexParams;
+        // private TexParams _localTexParams;
 
-        private static readonly TexParams _defaultTexParams;
+        // private static readonly TexParams _defaultTexParams;
 
-        private static readonly TexParams _texParams;
+        // private static readonly TexParams _texParams;
         private static CTRTexture2D root;
 
         private static CTRTexture2D tail;
@@ -350,7 +350,7 @@ namespace CutTheRope.Framework.Visual
 
         public static Texture2DPixelFormat kTexture2DPixelFormat_Default = Texture2DPixelFormat.kTexture2DPixelFormat_RGBA8888;
 
-        private static Texture2DPixelFormat _defaultAlphaPixelFormat = kTexture2DPixelFormat_Default;
+        // private static Texture2DPixelFormat _defaultAlphaPixelFormat = kTexture2DPixelFormat_Default;
 
         public enum Texture2DPixelFormat
         {
