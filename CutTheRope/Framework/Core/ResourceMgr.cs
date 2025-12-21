@@ -660,7 +660,7 @@ namespace CutTheRope.Framework.Core
 
         private void LoadResource(int resId)
         {
-            if (!TryResolveResource(resId, out int localizedResId, out string localizedName))
+            if (!TryResolveResource(resId, out _, out string localizedName))
             {
                 return;
             }
@@ -672,7 +672,7 @@ namespace CutTheRope.Framework.Core
             }
             if (Resources.IsSound(localizedName))
             {
-                _ = Application.SharedSoundMgr().GetSound(localizedResId);
+                _ = Application.SharedSoundMgr().GetSound(localizedName);
                 return;
             }
             if (Resources.IsFont(localizedName))

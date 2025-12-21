@@ -24,18 +24,13 @@ namespace CutTheRope.Framework.Media
             _contentManager = contentManager;
         }
 
-        public void FreeSound(int resId)
-        {
-            _ = LoadedSounds.Remove(resId);
-        }
-
         /// <summary>
         /// Frees a sound by its resource name.
         /// </summary>
         public void FreeSound(string soundResourceName)
         {
-            int soundResID = GetResourceId(soundResourceName);
-            FreeSound(soundResID);
+            string localizedName = CTRResourceMgr.HandleLocalizedResource(soundResourceName);
+            _ = LoadedSounds.Remove(localizedName);
         }
 
         public SoundEffect GetSound(int resId)
@@ -49,7 +44,7 @@ namespace CutTheRope.Framework.Media
             {
                 return null;
             }
-            if (LoadedSounds.TryGetValue(localizedResId, out SoundEffect value))
+            if (LoadedSounds.TryGetValue(resourceName, out SoundEffect value))
             {
                 return value;
             }
@@ -58,7 +53,7 @@ namespace CutTheRope.Framework.Media
             {
                 string soundPath = ContentPaths.GetSoundEffectPath(CTRResourceMgr.XNA_ResName(resourceName));
                 value = _contentManager.Load<SoundEffect>(soundPath);
-                LoadedSounds.Add(localizedResId, value);
+                LoadedSounds.Add(resourceName, value);
                 soundEffect = value;
             }
             catch (Exception)
@@ -69,12 +64,28 @@ namespace CutTheRope.Framework.Media
         }
 
         /// <summary>
-        /// Gets a sound by its resource name (auto-assigns ID if needed).
+        /// Gets a sound by its resource name.
         /// </summary>
         public SoundEffect GetSound(string soundResourceName)
         {
-            int soundResID = GetResourceId(soundResourceName);
-            return GetSound(soundResID);
+            string localizedName = CTRResourceMgr.HandleLocalizedResource(soundResourceName);
+
+            if (LoadedSounds.TryGetValue(localizedName, out SoundEffect value))
+            {
+                return value;
+            }
+
+            try
+            {
+                string soundPath = ContentPaths.GetSoundEffectPath(CTRResourceMgr.XNA_ResName(localizedName));
+                value = _contentManager.Load<SoundEffect>(soundPath);
+                LoadedSounds.Add(localizedName, value);
+                return value;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private void ClearStopped()
@@ -257,7 +268,7 @@ namespace CutTheRope.Framework.Media
             return localizedResId >= 0;
         }
 
-        private readonly Dictionary<int, SoundEffect> LoadedSounds;
+        private readonly Dictionary<string, SoundEffect> LoadedSounds;
 
         private List<SoundEffectInstance> activeSounds;
 
