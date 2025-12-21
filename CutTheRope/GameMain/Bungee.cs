@@ -20,7 +20,7 @@ namespace CutTheRope.GameMain
             Vector vector = VectSub(v2, v);
             if (!VectEqual(vector, vectZero))
             {
-                Vector v3 = highlighted ? vector : VectMult(vector, color.a == 1.0 ? 1.02 : 1.0);
+                Vector v3 = highlighted ? vector : VectMult(vector, color.Alpha == 1.0 ? 1.02 : 1.0);
                 Vector v4 = VectPerp(vector);
                 Vector vector2 = VectNormalize(v4);
                 v4 = VectMult(vector2, size);
@@ -65,7 +65,7 @@ namespace CutTheRope.GameMain
                     v9.x, v9.y, v10.x, v10.y, v12.x, v12.y
                 ];
                 RGBAColor whiteRGBA = RGBAColor.whiteRGBA;
-                whiteRGBA.a = 0.1f * color.a;
+                whiteRGBA.Alpha = 0.1f * color.Alpha;
                 ccolors[2] = whiteRGBA;
                 ccolors[3] = whiteRGBA;
                 ccolors[4] = whiteRGBA;
@@ -76,10 +76,10 @@ namespace CutTheRope.GameMain
                     v2.x, v2.y, vector6.x, vector6.y, vector7.x, vector7.y, v5.x, v5.y, v9.x, v9.y
                 ];
                 RGBAColor rgbaColor = color;
-                float num = 0.15f * color.a;
-                color.r += num;
-                color.g += num;
-                color.b += num;
+                float num = 0.15f * color.Alpha;
+                color.RedColor += num;
+                color.GreenColor += num;
+                color.BlueColor += num;
                 ccolors2[2] = color;
                 ccolors2[3] = color;
                 ccolors2[4] = rgbaColor;
@@ -114,42 +114,42 @@ namespace CutTheRope.GameMain
 
             // Apply alpha multiplier to base colors
             RGBAColor rgbaColor = RGBAColor.MakeRGBA(
-                ropeColors.Color1.r * num,
-                ropeColors.Color1.g * num,
-                ropeColors.Color1.b * num,
+                ropeColors.Color1.RedColor * num,
+                ropeColors.Color1.GreenColor * num,
+                ropeColors.Color1.BlueColor * num,
                 (double)num);
             RGBAColor rgbaColor2 = RGBAColor.MakeRGBA(
-                ropeColors.Color2.r * num,
-                ropeColors.Color2.g * num,
-                ropeColors.Color2.b * num,
+                ropeColors.Color2.RedColor * num,
+                ropeColors.Color2.GreenColor * num,
+                ropeColors.Color2.BlueColor * num,
                 (double)num);
 
             // Create darker variants for shading (40% of base color)
             RGBAColor rgbaColor3 = RGBAColor.MakeRGBA(
-                ropeColors.Color1.r * 0.4 * num,
-                ropeColors.Color1.g * 0.4 * num,
-                ropeColors.Color1.b * 0.4 * num,
+                ropeColors.Color1.RedColor * 0.4 * num,
+                ropeColors.Color1.GreenColor * 0.4 * num,
+                ropeColors.Color1.BlueColor * 0.4 * num,
                 (double)num);
             RGBAColor rgbaColor4 = RGBAColor.MakeRGBA(
-                ropeColors.Color2.r * 0.45 * num,
-                ropeColors.Color2.g * 0.45 * num,
-                ropeColors.Color2.b * 0.45 * num,
+                ropeColors.Color2.RedColor * 0.45 * num,
+                ropeColors.Color2.GreenColor * 0.45 * num,
+                ropeColors.Color2.BlueColor * 0.45 * num,
                 (double)num);
             if (b.highlighted)
             {
                 float num2 = 3f;
-                rgbaColor.r *= num2;
-                rgbaColor.g *= num2;
-                rgbaColor.b *= num2;
-                rgbaColor2.r *= num2;
-                rgbaColor2.g *= num2;
-                rgbaColor2.b *= num2;
-                rgbaColor3.r *= num2;
-                rgbaColor3.g *= num2;
-                rgbaColor3.b *= num2;
-                rgbaColor4.r *= num2;
-                rgbaColor4.g *= num2;
-                rgbaColor4.b *= num2;
+                rgbaColor.RedColor *= num2;
+                rgbaColor.GreenColor *= num2;
+                rgbaColor.BlueColor *= num2;
+                rgbaColor2.RedColor *= num2;
+                rgbaColor2.GreenColor *= num2;
+                rgbaColor2.BlueColor *= num2;
+                rgbaColor3.RedColor *= num2;
+                rgbaColor3.GreenColor *= num2;
+                rgbaColor3.BlueColor *= num2;
+                rgbaColor4.RedColor *= num2;
+                rgbaColor4.GreenColor *= num2;
+                rgbaColor4.BlueColor *= num2;
             }
             float num3 = VectDistance(Vect(pts[0].x, pts[0].y), Vect(pts[1].x, pts[1].y));
             b.relaxed = (double)num3 <= BUNGEE_REST_LEN + 0.3
@@ -158,8 +158,8 @@ namespace CutTheRope.GameMain
             if ((double)num3 > BUNGEE_REST_LEN + 7.0)
             {
                 float num4 = num3 / BUNGEE_REST_LEN * 2f;
-                rgbaColor3.r *= num4;
-                rgbaColor4.r *= num4;
+                rgbaColor3.RedColor *= num4;
+                rgbaColor4.RedColor *= num4;
             }
             bool flag = false;
             int num5 = (count - 1) * points;
@@ -172,12 +172,12 @@ namespace CutTheRope.GameMain
             int num10 = 0;
             RGBAColor rgbaColor5 = rgbaColor3;
             RGBAColor rgbaColor6 = rgbaColor4;
-            float num11 = (rgbaColor.r - rgbaColor3.r) / (num5 - 1);
-            float num12 = (rgbaColor.g - rgbaColor3.g) / (num5 - 1);
-            float num13 = (rgbaColor.b - rgbaColor3.b) / (num5 - 1);
-            float num14 = (rgbaColor2.r - rgbaColor4.r) / (num5 - 1);
-            float num15 = (rgbaColor2.g - rgbaColor4.g) / (num5 - 1);
-            float num16 = (rgbaColor2.b - rgbaColor4.b) / (num5 - 1);
+            float num11 = (rgbaColor.RedColor - rgbaColor3.RedColor) / (num5 - 1);
+            float num12 = (rgbaColor.GreenColor - rgbaColor3.GreenColor) / (num5 - 1);
+            float num13 = (rgbaColor.BlueColor - rgbaColor3.BlueColor) / (num5 - 1);
+            float num14 = (rgbaColor2.RedColor - rgbaColor4.RedColor) / (num5 - 1);
+            float num15 = (rgbaColor2.GreenColor - rgbaColor4.GreenColor) / (num5 - 1);
+            float num16 = (rgbaColor2.BlueColor - rgbaColor4.BlueColor) / (num5 - 1);
             float lx = -1f;
             float ly = -1f;
             float rx = -1f;
@@ -211,12 +211,12 @@ namespace CutTheRope.GameMain
                     num8 = 2;
                     flag = !flag;
                     num10++;
-                    rgbaColor5.r += num11 * (num17 - 1);
-                    rgbaColor5.g += num12 * (num17 - 1);
-                    rgbaColor5.b += num13 * (num17 - 1);
-                    rgbaColor6.r += num14 * (num17 - 1);
-                    rgbaColor6.g += num15 * (num17 - 1);
-                    rgbaColor6.b += num16 * (num17 - 1);
+                    rgbaColor5.RedColor += num11 * (num17 - 1);
+                    rgbaColor5.GreenColor += num12 * (num17 - 1);
+                    rgbaColor5.BlueColor += num13 * (num17 - 1);
+                    rgbaColor6.RedColor += num14 * (num17 - 1);
+                    rgbaColor6.GreenColor += num15 * (num17 - 1);
+                    rgbaColor6.BlueColor += num16 * (num17 - 1);
                 }
                 if ((double)num7 == 1.0)
                 {
@@ -591,7 +591,7 @@ namespace CutTheRope.GameMain
             RGBAColor color = RGBAColor.whiteRGBA;
             if (alpha < 1f)
             {
-                color.a = alpha;
+                color.Alpha = alpha;
             }
             OpenGL.GlColor4f(color.ToXNA());
 

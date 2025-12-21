@@ -39,10 +39,10 @@ namespace CutTheRope.Framework.Visual
                 p.dir = VectAdd(p.dir, v2);
                 v2 = VectMult(p.dir, delta);
                 p.pos = VectAdd(p.pos, v2);
-                p.color.r += p.deltaColor.r * delta;
-                p.color.g += p.deltaColor.g * delta;
-                p.color.b += p.deltaColor.b * delta;
-                p.color.a += p.deltaColor.a * delta;
+                p.color.RedColor += p.deltaColor.RedColor * delta;
+                p.color.GreenColor += p.deltaColor.GreenColor * delta;
+                p.color.BlueColor += p.deltaColor.BlueColor * delta;
+                p.color.Alpha += p.deltaColor.Alpha * delta;
                 p.life -= delta;
                 vertices[particleIdx].x = p.pos.x;
                 vertices[particleIdx].y = p.pos.y;
@@ -173,20 +173,20 @@ namespace CutTheRope.Framework.Visual
             particle.tangentialAccel = tangentialAccel + (tangentialAccelVar * RND_MINUS1_1);
             particle.life = life + (lifeVar * RND_MINUS1_1);
             RGBAColor rgbaColor = default;
-            rgbaColor.r = startColor.r + (startColorVar.r * RND_MINUS1_1);
-            rgbaColor.g = startColor.g + (startColorVar.g * RND_MINUS1_1);
-            rgbaColor.b = startColor.b + (startColorVar.b * RND_MINUS1_1);
-            rgbaColor.a = startColor.a + (startColorVar.a * RND_MINUS1_1);
+            rgbaColor.RedColor = startColor.RedColor + (startColorVar.RedColor * RND_MINUS1_1);
+            rgbaColor.GreenColor = startColor.GreenColor + (startColorVar.GreenColor * RND_MINUS1_1);
+            rgbaColor.BlueColor = startColor.BlueColor + (startColorVar.BlueColor * RND_MINUS1_1);
+            rgbaColor.Alpha = startColor.Alpha + (startColorVar.Alpha * RND_MINUS1_1);
             RGBAColor rgbaColor2 = default;
-            rgbaColor2.r = endColor.r + (endColorVar.r * RND_MINUS1_1);
-            rgbaColor2.g = endColor.g + (endColorVar.g * RND_MINUS1_1);
-            rgbaColor2.b = endColor.b + (endColorVar.b * RND_MINUS1_1);
-            rgbaColor2.a = endColor.a + (endColorVar.a * RND_MINUS1_1);
+            rgbaColor2.RedColor = endColor.RedColor + (endColorVar.RedColor * RND_MINUS1_1);
+            rgbaColor2.GreenColor = endColor.GreenColor + (endColorVar.GreenColor * RND_MINUS1_1);
+            rgbaColor2.BlueColor = endColor.BlueColor + (endColorVar.BlueColor * RND_MINUS1_1);
+            rgbaColor2.Alpha = endColor.Alpha + (endColorVar.Alpha * RND_MINUS1_1);
             particle.color = rgbaColor;
-            particle.deltaColor.r = (rgbaColor2.r - rgbaColor.r) / particle.life;
-            particle.deltaColor.g = (rgbaColor2.g - rgbaColor.g) / particle.life;
-            particle.deltaColor.b = (rgbaColor2.b - rgbaColor.b) / particle.life;
-            particle.deltaColor.a = (rgbaColor2.a - rgbaColor.a) / particle.life;
+            particle.deltaColor.RedColor = (rgbaColor2.RedColor - rgbaColor.RedColor) / particle.life;
+            particle.deltaColor.GreenColor = (rgbaColor2.GreenColor - rgbaColor.GreenColor) / particle.life;
+            particle.deltaColor.BlueColor = (rgbaColor2.BlueColor - rgbaColor.BlueColor) / particle.life;
+            particle.deltaColor.Alpha = (rgbaColor2.Alpha - rgbaColor.Alpha) / particle.life;
             particle.size = size + (sizeVar * RND_MINUS1_1);
         }
 

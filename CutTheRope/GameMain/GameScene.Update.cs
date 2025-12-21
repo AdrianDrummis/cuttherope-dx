@@ -22,7 +22,7 @@ namespace CutTheRope.GameMain
                 for (int j = 0; j < fingerCuts[i].Count; j++)
                 {
                     FingerCut fingerCut = fingerCuts[i].ObjectAtIndex(j);
-                    float alpha = fingerCut.c.a;
+                    float alpha = fingerCut.c.Alpha;
                     if (Mover.MoveVariableToTarget(ref alpha, 0.0f, 10.0f, (float)delta))
                     {
                         fingerCuts[i].RemoveObject(fingerCut);
@@ -30,7 +30,7 @@ namespace CutTheRope.GameMain
                     }
                     else
                     {
-                        fingerCut.c.a = alpha;
+                        fingerCut.c.Alpha = alpha;
                     }
                 }
             }
