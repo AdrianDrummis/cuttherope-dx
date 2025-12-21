@@ -47,7 +47,7 @@ namespace CutTheRope.GameMain
         public CTRRootController(ViewController parent)
             : base(parent)
         {
-            hacked = false;
+            // hacked = false;
             loadedMap = null;
             CTRResourceMgr ctrresourceMgr = Application.SharedResourceMgr();
             ctrresourceMgr.InitLoading();
@@ -240,10 +240,10 @@ namespace CutTheRope.GameMain
             return false;
         }
 
-        public static void SetHacked()
-        {
-            ((CTRRootController)Application.SharedRootController()).hacked = true;
-        }
+        //public static void SetHacked()
+        //{
+        // ((CTRRootController)Application.SharedRootController()).hacked = true;
+        //}
 
         public static void SetInCrystal(bool b)
         {
@@ -349,7 +349,7 @@ namespace CutTheRope.GameMain
 
         private bool showGreeting;
 
-        private bool hacked;
+        // private bool hacked;
 
         private static readonly string[] PackStartup = [
             Resources.Img.ZeptolabNoLink,

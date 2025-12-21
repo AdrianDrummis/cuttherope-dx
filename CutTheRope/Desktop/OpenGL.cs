@@ -410,7 +410,7 @@ namespace CutTheRope.Desktop
                     return basicEffect;
                 }
                 basicEffect.Texture = s_Texture.xnaTexture_;
-                s_Texture_OptimizeLastUsed = s_Texture;
+                // s_Texture_OptimizeLastUsed = s_Texture;
                 basicEffect.DiffuseColor = s_Color.ToVector3();
                 Global.GraphicsDevice.RasterizerState = s_rasterizerStateTexture;
                 Global.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
@@ -613,7 +613,7 @@ namespace CutTheRope.Desktop
 
         public static void GlLineWidth(double width)
         {
-            s_LineWidth = width;
+            // s_LineWidth = width;
         }
 
         /// <summary>
@@ -652,7 +652,7 @@ namespace CutTheRope.Desktop
 
         private static CTRTexture2D s_Texture;
 
-        private static CTRTexture2D s_Texture_OptimizeLastUsed;
+        // private static CTRTexture2D s_Texture_OptimizeLastUsed;
 
         private static Color s_glClearColor = Color.White;
 
@@ -686,9 +686,9 @@ namespace CutTheRope.Desktop
 
         private static VertexPositionNormalTexture[] s_LastVertices_PositionNormalTexture;
 
-        private static Rectangle ScreenRect = new(0, 0, Global.GraphicsDevice.Viewport.Width, Global.GraphicsDevice.Viewport.Height);
+        // private static Rectangle ScreenRect = new(0, 0, Global.GraphicsDevice.Viewport.Width, Global.GraphicsDevice.Viewport.Height);
 
-        private static double s_LineWidth;
+        // private static double s_LineWidth;
 
         private sealed class GLVertexPointer(int size, object pointer)
         {

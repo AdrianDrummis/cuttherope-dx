@@ -38,7 +38,7 @@ namespace CutTheRope.GameMain
                     OpenGL.GlDeleteBuffers(1, ref verticesID);
                     verticesID = 0;
                 }
-                vertices = null;
+                // vertices = null;
                 drawer?.Dispose();
                 drawer = null;
             }
@@ -186,7 +186,7 @@ namespace CutTheRope.GameMain
 
         private uint colorsID;
 
-        private PointSprite[] vertices;
+        // private PointSprite[] vertices;
 
         private uint verticesID;
     }
