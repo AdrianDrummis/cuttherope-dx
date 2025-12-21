@@ -279,7 +279,7 @@
         "image": "char_greeting_xmas.png",
         "format": "RGBA8888",
         "size": { "w": 976, "h": 2037 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:0f05c1d225de6d315d1bf45e4667362f:62c0e3d3ad39d8aebfd636cb96c38f75:a0edbc2f0f450c4740fcc1cb754ffbbc$"
     }
 }

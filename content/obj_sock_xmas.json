@@ -47,7 +47,7 @@
         "image": "obj_sock_xmas.png",
         "format": "RGBA8888",
         "size": { "w": 294, "h": 1441 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:b69f375fbd97c372cb2411e588fbfc15:81b9c285b8528acadb1822ba8026510e:a39209080796b98895b82eda0f086242$"
     }
 }

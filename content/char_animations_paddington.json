@@ -327,7 +327,7 @@
         "image": "char_animations_paddington.png",
         "format": "RGBA8888",
         "size": { "w": 4087, "h": 1189 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:57db4fd0ea13df029f51ab4859249fc8:faf546462f0e7132f7434e778b5026df:5e36599e1208e1235b2412de42526232$"
     }
 }

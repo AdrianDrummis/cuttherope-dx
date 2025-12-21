@@ -39,7 +39,7 @@
         "image": "snowflakes.png",
         "format": "RGBA8888",
         "size": { "w": 360, "h": 170 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:7d894cfd81e46398d106e4b53c5ef8cb:2bce22160d159069e1df0877f66a8901:1d02fb9e2da191ef1ac0f5e1ccb11e3a$"
     }
 }

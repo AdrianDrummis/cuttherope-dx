@@ -23,7 +23,7 @@
         "image": "candy_selection_fx.png",
         "format": "RGBA8888",
         "size": { "w": 304, "h": 533 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:5c7e84d8708c1ffe5c0bbbf7d5710c95:3cca3e967779f60c23cf351c8b9c45ad:62c54f09b41539df3f003413d93c1161$"
     }
 }

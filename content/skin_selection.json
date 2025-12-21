@@ -551,7 +551,7 @@
         "image": "skin_selection.png",
         "format": "RGBA8888",
         "size": { "w": 1967, "h": 1349 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:9f87ed7f4f3e2f3b3f50878d1d860a2b:9b533d4b65d76912c89343b44d44c728:1fc199593337402165068564f8cb3c71$"
     }
 }

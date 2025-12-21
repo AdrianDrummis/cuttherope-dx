@@ -47,7 +47,7 @@
         "image": "christmas_lights.png",
         "format": "RGBA8888",
         "size": { "w": 301, "h": 61 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:ea6c87c908c6f411737ee2abffd45b15:0bac4101ea27edd62e7e4e0206b3f655:d424e4238376df5cc800c7b4164d1b4b$"
     }
 }

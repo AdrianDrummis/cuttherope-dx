@@ -503,7 +503,7 @@
         "image": "char_idle_xmas.png",
         "format": "RGBA8888",
         "size": { "w": 2212, "h": 2022 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:d62e07c27e434307426c76e5de61b388:4a1a07649794169f4b041c20f74b749f:c7f924f8f4b3a9c763de523a64eff4a4$"
     }
 }

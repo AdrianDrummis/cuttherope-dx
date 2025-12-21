@@ -151,7 +151,7 @@
         "image": "obj_candy_paddington.png",
         "format": "RGBA8888",
         "size": { "w": 1030, "h": 508 },
-        "scale": "0.78",
+        "scale": "1",
         "smartupdate": "$TexturePacker:SmartUpdate:fc028bb122f6ce29477ec19349ff6b54:1a42076931db6358a98d53b993e8da29:c0826ddec6df7ce9af6accced55fc112$"
     }
 }
