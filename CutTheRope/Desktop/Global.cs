@@ -1,3 +1,5 @@
+using CutTheRope.Framework.Rendering;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -23,6 +25,8 @@ namespace CutTheRope.Desktop
 
         // (get) Token: 0x06000053 RID: 83 RVA: 0x00003704 File Offset: 0x00001904
         public static MouseCursor MouseCursor { get; } = new();
+
+        public static IRenderer Renderer { get; set; }
 
         // (get) Token: 0x06000054 RID: 84 RVA: 0x0000370B File Offset: 0x0000190B
         // (set) Token: 0x06000055 RID: 85 RVA: 0x00003712 File Offset: 0x00001912

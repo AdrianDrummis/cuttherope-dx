@@ -10,6 +10,8 @@ using CutTheRope.Desktop;
 using CutTheRope.Framework;
 using CutTheRope.Framework.Core;
 using CutTheRope.Framework.Media;
+using CutTheRope.Framework.Rendering;
+using CutTheRope.Framework.Rendering.Legacy;
 using CutTheRope.Helpers;
 
 using Microsoft.Xna.Framework;
@@ -111,6 +113,9 @@ namespace CutTheRope
         {
             Global.GraphicsDevice = GraphicsDevice;
             Global.SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Global.Renderer = new ModernRenderer();
+            Global.Renderer.Initialize(GraphicsDevice);
+            LegacyGlAdapter.Attach(Global.Renderer);
             SoundMgr.SetContentManager(Content);
 
             // Initialize FontManager for FontStashSharp fonts
