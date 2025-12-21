@@ -41,8 +41,10 @@ namespace CutTheRope.Framework.Core
             });
         }
 
-        public float x;
+#pragma warning disable IDE1006
+        public float x { get; set; }
 
-        public float y;
+        public float y { get; set; }
+#pragma warning restore IDE1006
     }
 }

@@ -179,9 +179,11 @@ namespace CutTheRope.Framework.Sfe
             for (int i = 0; i < count; i++)
             {
                 Constraint constraint = p.constraints[i];
-                Vector vector;
-                vector.x = constraint.cp.pos.x - p.pos.x;
-                vector.y = constraint.cp.pos.y - p.pos.y;
+                Vector vector = new()
+                {
+                    x = constraint.cp.pos.x - p.pos.x,
+                    y = constraint.cp.pos.y - p.pos.y
+                };
                 if (vector.x == 0f && vector.y == 0f)
                 {
                     vector = Vect(1f, 1f);
