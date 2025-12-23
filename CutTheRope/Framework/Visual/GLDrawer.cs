@@ -491,7 +491,7 @@ namespace CutTheRope.Framework.Visual
                     Vector2.Zero);
             }
             Material material = OpenGL.GetMaterialForCurrentState(useTexture: false, useVertexColor: true, constantColor: null);
-            MeshDrawCommand command = new(meshVertices, null, null, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleStrip, vertexCount - 2);
+            MeshDrawCommand command = new(meshVertices, null, null, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleStrip, vertexCount - 2, meshVertices.Length, 0);
             Global.Renderer.DrawMesh(command);
             return true;
         }
@@ -513,7 +513,7 @@ namespace CutTheRope.Framework.Visual
                     Vector2.Zero);
             }
             Material material = OpenGL.GetMaterialForCurrentState(useTexture: false, useVertexColor: true, constantColor: null);
-            MeshDrawCommand command = new(meshVertices, null, null, material, OpenGL.GetModelViewMatrix(), PrimitiveType.LineStrip, vertexCount - 1);
+            MeshDrawCommand command = new(meshVertices, null, null, material, OpenGL.GetModelViewMatrix(), PrimitiveType.LineStrip, vertexCount - 1, meshVertices.Length, 0);
             Global.Renderer.DrawMesh(command);
             return true;
         }

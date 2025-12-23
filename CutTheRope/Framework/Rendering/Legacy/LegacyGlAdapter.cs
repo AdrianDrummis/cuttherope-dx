@@ -102,6 +102,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
             {
                 return;
             }
+            int indexCount = indices?.Length ?? 0;
             MeshDrawCommand command = new(
                 vertices,
                 indices,
@@ -109,7 +110,9 @@ namespace CutTheRope.Framework.Rendering.Legacy
                 material ?? MaterialPresets.TexturedVertexColorAlphaBlend,
                 world,
                 primitiveType,
-                GetPrimitiveCount(primitiveType, vertices.Length, indices?.Length ?? 0)
+                GetPrimitiveCount(primitiveType, vertices.Length, indexCount),
+                vertices.Length,
+                indexCount
             );
             Renderer.DrawMesh(command);
         }

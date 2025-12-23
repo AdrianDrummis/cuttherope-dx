@@ -192,6 +192,12 @@ namespace CutTheRope.GameMain
             {
                 return false;
             }
+            if (Global.Renderer is IQuadBatchRenderer quadRenderer)
+            {
+                Material batchMaterial = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: true, constantColor: null);
+                quadRenderer.DrawTexturedQuads(drawer.image.texture.xnaTexture_, drawer.vertices, drawer.texCoordinates, colors, quadCount, batchMaterial, OpenGL.GetModelViewMatrix());
+                return true;
+            }
             int maxQuads = drawer.vertices.Length;
             if (quadCount > maxQuads)
             {
