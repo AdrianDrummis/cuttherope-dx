@@ -147,9 +147,12 @@ namespace CutTheRope.GameMain
                     colors[(i * 4) + j] = RGBAColor.MakeRGBA(alpha, alpha, alpha, alpha);
                 }
             }
-            OpenGL.GlBindBuffer(2, colorsID);
-            OpenGL.GlBufferData(2, colors, 3);
-            OpenGL.GlBindBuffer(2, 0U);
+            if (Global.Renderer == null)
+            {
+                OpenGL.GlBindBuffer(2, colorsID);
+                OpenGL.GlBufferData(2, colors, 3);
+                OpenGL.GlBindBuffer(2, 0U);
+            }
         }
 
         public override void Draw()
@@ -189,16 +192,16 @@ namespace CutTheRope.GameMain
             {
                 return false;
             }
+            int maxQuads = drawer.vertices.Length;
+            if (quadCount > maxQuads)
+            {
+                quadCount = maxQuads;
+            }
             if (Global.Renderer is IQuadBatchRenderer quadRenderer)
             {
                 Material batchMaterial = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: true, constantColor: null);
                 quadRenderer.DrawTexturedQuads(drawer.image.texture.xnaTexture_, drawer.vertices, drawer.texCoordinates, colors, quadCount, batchMaterial, OpenGL.GetModelViewMatrix());
                 return true;
-            }
-            int maxQuads = drawer.vertices.Length;
-            if (quadCount > maxQuads)
-            {
-                quadCount = maxQuads;
             }
             int vertexCount = quadCount * 4;
             VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
