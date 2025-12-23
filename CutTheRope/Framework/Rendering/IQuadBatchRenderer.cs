@@ -1,6 +1,4 @@
 #nullable enable
-using CutTheRope.Framework;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

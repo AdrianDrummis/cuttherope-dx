@@ -1,8 +1,6 @@
 #nullable enable
 using System;
 
-using CutTheRope.Framework;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -37,9 +35,9 @@ namespace CutTheRope.Framework.Rendering
 
         private RenderTarget2D? _currentRenderTarget;
 
-        private VertexPositionColorTexture[] _quadVertexCache = Array.Empty<VertexPositionColorTexture>();
+        private VertexPositionColorTexture[] _quadVertexCache = [];
 
-        private short[] _quadIndexCache = Array.Empty<short>();
+        private short[] _quadIndexCache = [];
 
         public RendererStats Stats { get; private set; }
 
