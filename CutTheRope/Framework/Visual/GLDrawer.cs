@@ -496,6 +496,28 @@ namespace CutTheRope.Framework.Visual
             return true;
         }
 
+        private static bool TryDrawLineStrip(float[] vertices, int vertexCount, RGBAColor color)
+        {
+            if (Global.Renderer == null || vertexCount < 2 || vertices.Length < vertexCount * 2)
+            {
+                return false;
+            }
+            VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
+            Color xnaColor = color.ToXNA();
+            for (int i = 0; i < vertexCount; i++)
+            {
+                int index = i * 2;
+                meshVertices[i] = new VertexPositionColorTexture(
+                    new Vector3(vertices[index], vertices[index + 1], 0f),
+                    xnaColor,
+                    Vector2.Zero);
+            }
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: false, useVertexColor: true, constantColor: null);
+            MeshDrawCommand command = new(meshVertices, null, null, material, OpenGL.GetModelViewMatrix(), PrimitiveType.LineStrip, vertexCount - 1);
+            Global.Renderer.DrawMesh(command);
+            return true;
+        }
+
         private static readonly RGBAColor[] colors =
 [
     RGBAColor.transparentRGBA,
