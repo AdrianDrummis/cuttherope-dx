@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 
+using CutTheRope.Framework;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -38,6 +40,14 @@ namespace CutTheRope.Framework.Rendering
         private VertexPositionColorTexture[] _quadVertexCache = [];
 
         private short[] _quadIndexCache = [];
+
+        private DynamicVertexBuffer? _vertexBuffer;
+
+        private DynamicIndexBuffer? _indexBuffer;
+
+        private int _vertexBufferCapacity;
+
+        private int _indexBufferCapacity;
 
         public RendererStats Stats { get; private set; }
 
@@ -138,14 +148,26 @@ namespace CutTheRope.Framework.Rendering
                     int primitiveCount = command.PrimitiveType == PrimitiveType.TriangleStrip
                         ? command.Indices.Length - 2
                         : command.Indices.Length / 3;
-                    _graphicsDevice.DrawUserIndexedPrimitives(command.PrimitiveType, command.Vertices, 0, command.Vertices.Length, command.Indices, 0, primitiveCount);
+                    int vertexCount = command.Vertices.Length;
+                    int indexCount = command.Indices.Length;
+                    EnsureVertexBuffer(vertexCount);
+                    EnsureIndexBuffer(indexCount);
+                    _vertexBuffer!.SetData(command.Vertices, 0, vertexCount, SetDataOptions.Discard);
+                    _indexBuffer!.SetData(command.Indices, 0, indexCount, SetDataOptions.Discard);
+                    _graphicsDevice.SetVertexBuffer(_vertexBuffer);
+                    _graphicsDevice.Indices = _indexBuffer;
+                    _graphicsDevice.DrawIndexedPrimitives(command.PrimitiveType, 0, 0, vertexCount, 0, primitiveCount);
                 }
                 else
                 {
                     int primitiveCount = command.PrimitiveType == PrimitiveType.TriangleStrip
                         ? command.Vertices.Length - 2
                         : command.Vertices.Length / 3;
-                    _graphicsDevice.DrawUserPrimitives(command.PrimitiveType, command.Vertices, 0, primitiveCount);
+                    int vertexCount = command.Vertices.Length;
+                    EnsureVertexBuffer(vertexCount);
+                    _vertexBuffer!.SetData(command.Vertices, 0, vertexCount, SetDataOptions.Discard);
+                    _graphicsDevice.SetVertexBuffer(_vertexBuffer);
+                    _graphicsDevice.DrawPrimitives(command.PrimitiveType, 0, primitiveCount);
                 }
             }
 
@@ -176,11 +198,20 @@ namespace CutTheRope.Framework.Rendering
                 pass.Apply();
                 if (command.Indices != null)
                 {
-                    _graphicsDevice.DrawUserIndexedPrimitives(command.PrimitiveType, command.Vertices, 0, command.VertexCount, command.Indices, 0, command.PrimitiveCount);
+                    EnsureVertexBuffer(command.VertexCount);
+                    EnsureIndexBuffer(command.IndexCount);
+                    _vertexBuffer!.SetData(command.Vertices, 0, command.VertexCount, SetDataOptions.Discard);
+                    _indexBuffer!.SetData(command.Indices, 0, command.IndexCount, SetDataOptions.Discard);
+                    _graphicsDevice.SetVertexBuffer(_vertexBuffer);
+                    _graphicsDevice.Indices = _indexBuffer;
+                    _graphicsDevice.DrawIndexedPrimitives(command.PrimitiveType, 0, 0, command.VertexCount, 0, command.PrimitiveCount);
                 }
                 else
                 {
-                    _graphicsDevice.DrawUserPrimitives(command.PrimitiveType, command.Vertices, 0, command.PrimitiveCount);
+                    EnsureVertexBuffer(command.VertexCount);
+                    _vertexBuffer!.SetData(command.Vertices, 0, command.VertexCount, SetDataOptions.Discard);
+                    _graphicsDevice.SetVertexBuffer(_vertexBuffer);
+                    _graphicsDevice.DrawPrimitives(command.PrimitiveType, 0, command.PrimitiveCount);
                 }
             }
 
@@ -275,6 +306,8 @@ namespace CutTheRope.Framework.Rendering
             _effectColor?.Dispose();
             _rasterizerNoScissor?.Dispose();
             _rasterizerScissor?.Dispose();
+            _vertexBuffer?.Dispose();
+            _indexBuffer?.Dispose();
         }
 
         public void UpdateViewProjection(Matrix view, Matrix projection)
@@ -367,6 +400,44 @@ namespace CutTheRope.Framework.Rendering
             _graphicsDevice.SamplerStates[0] = material.SamplerState;
             _graphicsDevice.RasterizerState = _currentScissor.HasValue ? _rasterizerScissor! : _rasterizerNoScissor!;
             Stats = Stats with { StateChanges = Stats.StateChanges + 1 };
+        }
+
+        private void EnsureVertexBuffer(int vertexCount)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before drawing.");
+            }
+            if (_vertexBuffer == null || vertexCount > _vertexBufferCapacity)
+            {
+                _vertexBuffer?.Dispose();
+                _vertexBufferCapacity = NextPowerOfTwo(vertexCount);
+                _vertexBuffer = new DynamicVertexBuffer(_graphicsDevice, VertexPositionColorTexture.VertexDeclaration, _vertexBufferCapacity, BufferUsage.WriteOnly);
+            }
+        }
+
+        private void EnsureIndexBuffer(int indexCount)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before drawing.");
+            }
+            if (_indexBuffer == null || indexCount > _indexBufferCapacity)
+            {
+                _indexBuffer?.Dispose();
+                _indexBufferCapacity = NextPowerOfTwo(indexCount);
+                _indexBuffer = new DynamicIndexBuffer(_graphicsDevice, IndexElementSize.SixteenBits, _indexBufferCapacity, BufferUsage.WriteOnly);
+            }
+        }
+
+        private static int NextPowerOfTwo(int value)
+        {
+            int result = 1;
+            while (result < value)
+            {
+                result <<= 1;
+            }
+            return result;
         }
     }
 }
