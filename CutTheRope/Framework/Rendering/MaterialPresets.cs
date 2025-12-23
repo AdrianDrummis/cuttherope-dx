@@ -30,7 +30,7 @@ namespace CutTheRope.Framework.Rendering
         );
 
         // Textured materials with vertex color
-        public static readonly Material TexturedVertexColorAlphaBlend = new Material(
+        public static readonly Material TexturedVertexColorAlphaBlend = new(
             BlendState.AlphaBlend,
             SamplerState.LinearClamp,
             effect: null,
@@ -39,7 +39,7 @@ namespace CutTheRope.Framework.Rendering
             useTexture: true
         );
 
-        public static readonly Material TexturedVertexColorAdditive = new Material(
+        public static readonly Material TexturedVertexColorAdditive = new(
             BlendState.Additive,
             SamplerState.LinearClamp,
             effect: null,

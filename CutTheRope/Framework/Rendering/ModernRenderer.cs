@@ -20,9 +20,6 @@ namespace CutTheRope.Framework.Rendering
         private BasicEffect? _effectColor;
 
         private RenderFrameContext _frameContext;
-
-        private RendererStats _stats;
-
         private RasterizerState? _rasterizerNoScissor;
 
         private RasterizerState? _rasterizerScissor;
@@ -37,7 +34,7 @@ namespace CutTheRope.Framework.Rendering
 
         private RenderTarget2D? _currentRenderTarget;
 
-        public RendererStats Stats => _stats;
+        public RendererStats Stats { get; private set; }
 
         public void Initialize(GraphicsDevice device)
         {
@@ -85,7 +82,7 @@ namespace CutTheRope.Framework.Rendering
                 throw new InvalidOperationException("Renderer must be initialized before BeginFrame.");
             }
             _frameContext = context;
-            _stats = default;
+            Stats = default;
 
             _currentRenderTarget = context.RenderTarget;
             _currentView = context.View;
@@ -147,11 +144,11 @@ namespace CutTheRope.Framework.Rendering
                 }
             }
 
-            _stats = _stats with
+            Stats = Stats with
             {
-                DrawCalls = _stats.DrawCalls + 1,
-                Vertices = _stats.Vertices + command.Vertices.Length,
-                Indices = _stats.Indices + (command.Indices?.Length ?? 0)
+                DrawCalls = Stats.DrawCalls + 1,
+                Vertices = Stats.Vertices + command.Vertices.Length,
+                Indices = Stats.Indices + (command.Indices?.Length ?? 0)
             };
         }
 
@@ -182,11 +179,11 @@ namespace CutTheRope.Framework.Rendering
                 }
             }
 
-            _stats = _stats with
+            Stats = Stats with
             {
-                DrawCalls = _stats.DrawCalls + 1,
-                Vertices = _stats.Vertices + command.Vertices.Length,
-                Indices = _stats.Indices + (command.Indices?.Length ?? 0)
+                DrawCalls = Stats.DrawCalls + 1,
+                Vertices = Stats.Vertices + command.Vertices.Length,
+                Indices = Stats.Indices + (command.Indices?.Length ?? 0)
             };
         }
 
@@ -290,7 +287,7 @@ namespace CutTheRope.Framework.Rendering
             _graphicsDevice!.BlendState = material.BlendState;
             _graphicsDevice.SamplerStates[0] = material.SamplerState;
             _graphicsDevice.RasterizerState = _currentScissor.HasValue ? _rasterizerScissor! : _rasterizerNoScissor!;
-            _stats = _stats with { StateChanges = _stats.StateChanges + 1 };
+            Stats = Stats with { StateChanges = Stats.StateChanges + 1 };
         }
     }
 }
