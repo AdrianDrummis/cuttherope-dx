@@ -155,6 +155,13 @@ namespace CutTheRope.Framework.Visual
             {
                 return false;
             }
+            if (Global.Renderer is IQuadBatchRenderer quadRenderer)
+            {
+                Color batchColor = OpenGL.GetCurrentColor();
+                Material batchMaterial = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: useVertexColor, constantColor: useVertexColor ? null : batchColor);
+                quadRenderer.DrawTexturedQuads(drawer.image.texture.xnaTexture_, drawer.vertices, drawer.texCoordinates, useVertexColor ? colors : null, quadCount, batchMaterial, OpenGL.GetModelViewMatrix());
+                return true;
+            }
             int maxQuads = drawer.vertices.Length;
             if (quadCount > maxQuads)
             {
@@ -188,7 +195,7 @@ namespace CutTheRope.Framework.Visual
                 drawIndices = trimmed;
             }
             Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: useVertexColor, constantColor: useVertexColor ? null : currentColor);
-            MeshDrawCommand command = new(meshVertices, drawIndices, drawer.image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3);
+            MeshDrawCommand command = new(meshVertices, drawIndices, drawer.image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3, meshVertices.Length, indexCount);
             Global.Renderer.DrawMesh(command);
             return true;
         }

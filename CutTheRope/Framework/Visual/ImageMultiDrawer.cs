@@ -170,7 +170,7 @@ namespace CutTheRope.Framework.Visual
                 Array.Copy(indices, drawIndices, indexCount);
             }
             Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: false, constantColor: OpenGL.GetCurrentColor());
-            MeshDrawCommand command = new(meshVertices, drawIndices, image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3);
+            MeshDrawCommand command = new(meshVertices, drawIndices, image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3, meshVertices.Length, indexCount);
             Global.Renderer.DrawMesh(command);
             return true;
         }
@@ -182,7 +182,7 @@ namespace CutTheRope.Framework.Visual
                 return false;
             }
             Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: false, constantColor: OpenGL.GetCurrentColor());
-            MeshDrawCommand command = new(LegacyGlAdapter.Convert(verticesOptimized), indices, image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indices.Length / 3);
+            MeshDrawCommand command = new(LegacyGlAdapter.Convert(verticesOptimized), indices, image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indices.Length / 3, verticesOptimized.Length, indices.Length);
             Global.Renderer.DrawMesh(command);
             return true;
         }

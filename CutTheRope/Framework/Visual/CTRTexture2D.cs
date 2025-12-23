@@ -174,7 +174,7 @@ namespace CutTheRope.Framework.Visual
             vertices[2] = new VertexPositionColorTexture(new Vector3(positions[4], positions[5], 0f), color, new Vector2(texCoords[4], texCoords[5]));
             vertices[3] = new VertexPositionColorTexture(new Vector3(positions[6], positions[7], 0f), color, new Vector2(texCoords[6], texCoords[7]));
             Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: false, constantColor: color);
-            MeshDrawCommand command = new(vertices, null, texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleStrip, 2);
+            MeshDrawCommand command = new(vertices, null, texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleStrip, 2, vertices.Length, 0);
             Global.Renderer.DrawMesh(command);
             return true;
         }

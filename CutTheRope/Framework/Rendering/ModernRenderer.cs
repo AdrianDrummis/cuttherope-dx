@@ -1,6 +1,8 @@
 #nullable enable
 using System;
 
+using CutTheRope.Framework;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,7 +12,7 @@ namespace CutTheRope.Framework.Rendering
     /// Initial modern renderer implementation that mirrors the BasicEffect-based pipeline but with explicit materials and frame context.
     /// Later phases will replace per-draw user primitives with batching and GPU buffers.
     /// </summary>
-    internal sealed class ModernRenderer : IRenderer
+    internal sealed class ModernRenderer : IRenderer, IQuadBatchRenderer
     {
         private GraphicsDevice? _graphicsDevice;
 
@@ -34,6 +36,10 @@ namespace CutTheRope.Framework.Rendering
         private Rectangle? _currentScissor;
 
         private RenderTarget2D? _currentRenderTarget;
+
+        private VertexPositionColorTexture[] _quadVertexCache = Array.Empty<VertexPositionColorTexture>();
+
+        private short[] _quadIndexCache = Array.Empty<short>();
 
         public RendererStats Stats { get; private set; }
 
@@ -172,7 +178,7 @@ namespace CutTheRope.Framework.Rendering
                 pass.Apply();
                 if (command.Indices != null)
                 {
-                    _graphicsDevice.DrawUserIndexedPrimitives(command.PrimitiveType, command.Vertices, 0, command.Vertices.Length, command.Indices, 0, command.PrimitiveCount);
+                    _graphicsDevice.DrawUserIndexedPrimitives(command.PrimitiveType, command.Vertices, 0, command.VertexCount, command.Indices, 0, command.PrimitiveCount);
                 }
                 else
                 {
@@ -183,16 +189,80 @@ namespace CutTheRope.Framework.Rendering
             Stats = Stats with
             {
                 DrawCalls = Stats.DrawCalls + 1,
-                Vertices = Stats.Vertices + command.Vertices.Length,
-                Indices = Stats.Indices + (command.Indices?.Length ?? 0)
+                Vertices = Stats.Vertices + command.VertexCount,
+                Indices = Stats.Indices + command.IndexCount
             };
         }
 
         public void DrawParticles(in ParticleDrawCommand command)
         {
             // Phase 1: reuse mesh path; later phases will move to buffer-backed particle batching.
-            MeshDrawCommand meshCommand = new(command.Vertices, command.Indices, null, command.Material, command.World, PrimitiveType.TriangleList, command.Indices.Length / 3);
+            MeshDrawCommand meshCommand = new(command.Vertices, command.Indices, null, command.Material, command.World, PrimitiveType.TriangleList, command.Indices.Length / 3, command.Vertices.Length, command.Indices.Length);
             DrawMesh(meshCommand);
+        }
+
+        public void DrawTexturedQuads(Texture2D texture, Quad3D[] positions, Quad2D[] texCoords, RGBAColor[]? colors, int quadCount, Material material, Matrix world)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before drawing.");
+            }
+            if (quadCount <= 0 || positions.Length < quadCount || texCoords.Length < quadCount)
+            {
+                return;
+            }
+            int vertexCount = quadCount * 4;
+            int indexCount = quadCount * 6;
+
+            if (_quadVertexCache.Length < vertexCount)
+            {
+                _quadVertexCache = new VertexPositionColorTexture[vertexCount];
+            }
+            if (_quadIndexCache.Length < indexCount)
+            {
+                _quadIndexCache = new short[indexCount];
+                for (int i = 0; i < quadCount; i++)
+                {
+                    int baseVertex = i * 4;
+                    int baseIndex = i * 6;
+                    _quadIndexCache[baseIndex] = (short)baseVertex;
+                    _quadIndexCache[baseIndex + 1] = (short)(baseVertex + 1);
+                    _quadIndexCache[baseIndex + 2] = (short)(baseVertex + 2);
+                    _quadIndexCache[baseIndex + 3] = (short)(baseVertex + 3);
+                    _quadIndexCache[baseIndex + 4] = (short)(baseVertex + 2);
+                    _quadIndexCache[baseIndex + 5] = (short)(baseVertex + 1);
+                }
+            }
+
+            Color fallbackColor = material.ConstantColor ?? Color.White;
+            bool useVertexColor = colors != null && colors.Length >= vertexCount;
+            int vertexIndex = 0;
+            for (int i = 0; i < quadCount; i++)
+            {
+                float[] pos = positions[i].ToFloatArray();
+                Quad2D quadUv = texCoords[i];
+                float tlX = quadUv.tlX;
+                float tlY = quadUv.tlY;
+                float trX = quadUv.trX;
+                float trY = quadUv.trY;
+                float blX = quadUv.blX;
+                float blY = quadUv.blY;
+                float brX = quadUv.brX;
+                float brY = quadUv.brY;
+
+                Color c0 = useVertexColor ? colors![(i * 4) + 0].ToXNA() : fallbackColor;
+                Color c1 = useVertexColor ? colors![(i * 4) + 1].ToXNA() : fallbackColor;
+                Color c2 = useVertexColor ? colors![(i * 4) + 2].ToXNA() : fallbackColor;
+                Color c3 = useVertexColor ? colors![(i * 4) + 3].ToXNA() : fallbackColor;
+
+                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[0], pos[1], pos[2]), c0, new Vector2(tlX, tlY));
+                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[3], pos[4], pos[5]), c1, new Vector2(trX, trY));
+                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[6], pos[7], pos[8]), c2, new Vector2(blX, blY));
+                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[9], pos[10], pos[11]), c3, new Vector2(brX, brY));
+            }
+
+            MeshDrawCommand command = new(_quadVertexCache, _quadIndexCache, texture, material, world, PrimitiveType.TriangleList, indexCount / 3, vertexCount, indexCount);
+            DrawMesh(command);
         }
 
         public void EndFrame()

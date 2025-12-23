@@ -60,6 +60,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
                 return;
             }
             VertexPositionColorTexture[] converted = Convert(vertices);
+            int indexCount = indices?.Length ?? 0;
             MeshDrawCommand command = new(
                 converted,
                 indices,
@@ -67,7 +68,9 @@ namespace CutTheRope.Framework.Rendering.Legacy
                 material ?? MaterialPresets.TexturedAlphaBlend,
                 world,
                 primitiveType,
-                GetPrimitiveCount(primitiveType, converted.Length, indices?.Length ?? 0)
+                GetPrimitiveCount(primitiveType, converted.Length, indexCount),
+                converted.Length,
+                indexCount
             );
             Renderer.DrawMesh(command);
         }
@@ -78,6 +81,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
             {
                 return;
             }
+            int indexCount = indices?.Length ?? 0;
             MeshDrawCommand command = new(
                 vertices,
                 indices,
@@ -85,7 +89,9 @@ namespace CutTheRope.Framework.Rendering.Legacy
                 material ?? MaterialPresets.TexturedVertexColorAlphaBlend,
                 world,
                 primitiveType,
-                GetPrimitiveCount(primitiveType, vertices.Length, indices?.Length ?? 0)
+                GetPrimitiveCount(primitiveType, vertices.Length, indexCount),
+                vertices.Length,
+                indexCount
             );
             Renderer.DrawMesh(command);
         }
@@ -97,6 +103,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
                 return;
             }
             VertexPositionColorTexture[] converted = Convert(vertices);
+            int indexCount = indices?.Length ?? 0;
             MeshDrawCommand command = new(
                 converted,
                 indices,
@@ -104,7 +111,9 @@ namespace CutTheRope.Framework.Rendering.Legacy
                 material ?? MaterialPresets.SolidColorAlphaBlend,
                 world,
                 primitiveType,
-                GetPrimitiveCount(primitiveType, converted.Length, indices?.Length ?? 0)
+                GetPrimitiveCount(primitiveType, converted.Length, indexCount),
+                converted.Length,
+                indexCount
             );
             Renderer.DrawMesh(command);
         }

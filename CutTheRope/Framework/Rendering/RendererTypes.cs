@@ -76,7 +76,7 @@ namespace CutTheRope.Framework.Rendering
     /// <summary>
     /// General mesh draw command. Will be routed to vertex/index buffers in later phases.
     /// </summary>
-    internal readonly struct MeshDrawCommand(VertexPositionColorTexture[] vertices, short[]? indices, Texture2D? texture, Material material, Matrix world, PrimitiveType primitiveType, int primitiveCount)
+    internal readonly struct MeshDrawCommand(VertexPositionColorTexture[] vertices, short[]? indices, Texture2D? texture, Material material, Matrix world, PrimitiveType primitiveType, int primitiveCount, int vertexCount, int indexCount)
     {
         public VertexPositionColorTexture[] Vertices { get; } = vertices ?? throw new ArgumentNullException(nameof(vertices));
 
@@ -91,6 +91,10 @@ namespace CutTheRope.Framework.Rendering
         public PrimitiveType PrimitiveType { get; } = primitiveType;
 
         public int PrimitiveCount { get; } = primitiveCount;
+
+        public int VertexCount { get; } = vertexCount;
+
+        public int IndexCount { get; } = indexCount;
     }
 
     /// <summary>
