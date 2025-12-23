@@ -8,8 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace CutTheRope.Framework.Rendering
 {
     /// <summary>
-    /// Initial modern renderer implementation that mirrors the BasicEffect-based pipeline but with explicit materials and frame context.
-    /// Later phases will replace per-draw user primitives with batching and GPU buffers.
+    /// Modern renderer implementation using BasicEffect, explicit materials, and a frame-scoped context.
     /// </summary>
     internal sealed class ModernRenderer : IRenderer, IQuadBatchRenderer
     {
@@ -52,8 +51,16 @@ namespace CutTheRope.Framework.Rendering
 
         private int _indexBufferOffset;
 
+        /// <summary>
+        /// Gets the per-frame renderer statistics.
+        /// </summary>
         public RendererStats Stats { get; private set; }
 
+        /// <summary>
+        /// Initializes device resources used by the renderer.
+        /// </summary>
+        /// <param name="device">Graphics device to bind resources against.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="device"/> is null.</exception>
         public void Initialize(GraphicsDevice device)
         {
             _graphicsDevice = device ?? throw new ArgumentNullException(nameof(device));
@@ -93,6 +100,11 @@ namespace CutTheRope.Framework.Rendering
             };
         }
 
+        /// <summary>
+        /// Begins a new frame with the provided render context and applies view/projection state.
+        /// </summary>
+        /// <param name="context">Frame-scoped rendering context.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void BeginFrame(in RenderFrameContext context)
         {
             if (_graphicsDevice == null)
@@ -120,6 +132,11 @@ namespace CutTheRope.Framework.Rendering
             ApplyMatrices(_effectColor);
         }
 
+        /// <summary>
+        /// Clears the current render target to the provided color.
+        /// </summary>
+        /// <param name="color">Clear color.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void Clear(Color color)
         {
             if (_graphicsDevice == null)
@@ -129,6 +146,11 @@ namespace CutTheRope.Framework.Rendering
             _graphicsDevice.Clear(color);
         }
 
+        /// <summary>
+        /// Draws a single quad command using the current material and texture state.
+        /// </summary>
+        /// <param name="command">Quad draw command.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void DrawQuad(in QuadDrawCommand command)
         {
             if (_graphicsDevice == null)
@@ -179,6 +201,11 @@ namespace CutTheRope.Framework.Rendering
             };
         }
 
+        /// <summary>
+        /// Draws a mesh using the supplied vertex/index data.
+        /// </summary>
+        /// <param name="command">Mesh draw command.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void DrawMesh(in MeshDrawCommand command)
         {
             if (_graphicsDevice == null)
@@ -220,6 +247,10 @@ namespace CutTheRope.Framework.Rendering
             };
         }
 
+        /// <summary>
+        /// Draws particles using the mesh path.
+        /// </summary>
+        /// <param name="command">Particle draw command.</param>
         public void DrawParticles(in ParticleDrawCommand command)
         {
             // Phase 1: reuse mesh path; later phases will move to buffer-backed particle batching.
@@ -227,6 +258,17 @@ namespace CutTheRope.Framework.Rendering
             DrawMesh(meshCommand);
         }
 
+        /// <summary>
+        /// Draws a batch of textured quads using a shared index buffer and the streaming vertex buffer.
+        /// </summary>
+        /// <param name="texture">Texture to bind for the draw.</param>
+        /// <param name="positions">Quad positions (4 vertices per quad).</param>
+        /// <param name="texCoords">Quad UV coordinates (4 vertices per quad).</param>
+        /// <param name="colors">Optional per-vertex colors.</param>
+        /// <param name="quadCount">Number of quads to draw.</param>
+        /// <param name="material">Material state used for the draw.</param>
+        /// <param name="world">World transform to apply.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void DrawTexturedQuads(Texture2D texture, Quad3D[] positions, Quad2D[] texCoords, RGBAColor[]? colors, int quadCount, Material material, Matrix world)
         {
             if (_graphicsDevice == null)
@@ -298,11 +340,17 @@ namespace CutTheRope.Framework.Rendering
             };
         }
 
+        /// <summary>
+        /// Ends the current frame. Reserved for future flush logic.
+        /// </summary>
         public void EndFrame()
         {
             // Placeholder for flush/restore logic. Later phases will flush batches and restore states as needed.
         }
 
+        /// <summary>
+        /// Releases device resources owned by the renderer.
+        /// </summary>
         public void Dispose()
         {
             _effectTexture?.Dispose();
@@ -315,6 +363,11 @@ namespace CutTheRope.Framework.Rendering
             _quadIndexBuffer?.Dispose();
         }
 
+        /// <summary>
+        /// Updates the view and projection matrices used by the renderer.
+        /// </summary>
+        /// <param name="view">View matrix.</param>
+        /// <param name="projection">Projection matrix.</param>
         public void UpdateViewProjection(Matrix view, Matrix projection)
         {
             _currentView = view;
@@ -324,6 +377,12 @@ namespace CutTheRope.Framework.Rendering
             ApplyMatrices(_effectColor);
         }
 
+        /// <summary>
+        /// Sets the active viewport and optional render target.
+        /// </summary>
+        /// <param name="viewport">Viewport to apply.</param>
+        /// <param name="renderTarget">Optional render target override.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void SetViewport(Viewport viewport, RenderTarget2D? renderTarget = null)
         {
             if (_graphicsDevice == null)
@@ -340,6 +399,11 @@ namespace CutTheRope.Framework.Rendering
             }
         }
 
+        /// <summary>
+        /// Updates the scissor rectangle and rasterizer state.
+        /// </summary>
+        /// <param name="scissor">Optional scissor rectangle.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         public void SetScissor(Rectangle? scissor)
         {
             if (_graphicsDevice == null)
@@ -351,9 +415,13 @@ namespace CutTheRope.Framework.Rendering
             {
                 _graphicsDevice.ScissorRectangle = _currentScissor.Value;
             }
-            _graphicsDevice.RasterizerState = _currentScissor.HasValue ? _rasterizerScissor! : _rasterizerNoScissor!;
+            _graphicsDevice.RasterizerState = _currentScissor.HasValue ? _rasterizerScissor : _rasterizerNoScissor;
         }
 
+        /// <summary>
+        /// Applies the current view/projection matrices to the effect.
+        /// </summary>
+        /// <param name="effect">Effect to update.</param>
         private void ApplyMatrices(BasicEffect? effect)
         {
             if (effect == null)
@@ -365,6 +433,12 @@ namespace CutTheRope.Framework.Rendering
             effect.World = Matrix.Identity;
         }
 
+        /// <summary>
+        /// Selects the effect that matches the requested material configuration.
+        /// </summary>
+        /// <param name="material">Material describing the render state.</param>
+        /// <returns>Effect instance to use for rendering.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when effects are not initialized.</exception>
         private BasicEffect GetEffectForMaterial(Material material)
         {
             BasicEffect? chosen = material.UseTexture
@@ -373,6 +447,13 @@ namespace CutTheRope.Framework.Rendering
             return chosen ?? throw new InvalidOperationException("Renderer effects are not initialized.");
         }
 
+        /// <summary>
+        /// Configures effect parameters and device state for the given material.
+        /// </summary>
+        /// <param name="effect">Effect to configure.</param>
+        /// <param name="material">Material describing render state.</param>
+        /// <param name="texture">Optional texture.</param>
+        /// <param name="world">World transform.</param>
         private void ConfigureEffect(BasicEffect effect, Material material, Texture2D? texture, Matrix world)
         {
             if (material.UseTexture && texture != null)
@@ -407,6 +488,11 @@ namespace CutTheRope.Framework.Rendering
             Stats = Stats with { StateChanges = Stats.StateChanges + 1 };
         }
 
+        /// <summary>
+        /// Ensures the streaming vertex buffer can hold the requested vertex count.
+        /// </summary>
+        /// <param name="vertexCount">Number of vertices that will be uploaded.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         private void EnsureVertexBuffer(int vertexCount)
         {
             if (_graphicsDevice == null)
@@ -422,6 +508,11 @@ namespace CutTheRope.Framework.Rendering
             }
         }
 
+        /// <summary>
+        /// Ensures the streaming index buffer can hold the requested index count.
+        /// </summary>
+        /// <param name="indexCount">Number of indices that will be uploaded.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         private void EnsureIndexBuffer(int indexCount)
         {
             if (_graphicsDevice == null)
@@ -437,6 +528,11 @@ namespace CutTheRope.Framework.Rendering
             }
         }
 
+        /// <summary>
+        /// Ensures the shared quad index buffer is large enough and populated.
+        /// </summary>
+        /// <param name="indexCount">Number of indices required for the quad batch.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the renderer is not initialized.</exception>
         private void EnsureQuadIndexBuffer(int indexCount)
         {
             if (_graphicsDevice == null)
@@ -472,6 +568,12 @@ namespace CutTheRope.Framework.Rendering
             }
         }
 
+        /// <summary>
+        /// Uploads vertex data into the streaming vertex buffer.
+        /// </summary>
+        /// <param name="vertices">Source vertex data.</param>
+        /// <param name="vertexCount">Number of vertices to upload.</param>
+        /// <param name="vertexOffset">Vertex offset used for drawing.</param>
         private void UploadVertices(VertexPositionColorTexture[] vertices, int vertexCount, out int vertexOffset)
         {
             EnsureVertexBuffer(vertexCount);
@@ -486,6 +588,12 @@ namespace CutTheRope.Framework.Rendering
             _vertexBufferOffset += vertexCount;
         }
 
+        /// <summary>
+        /// Uploads index data into the streaming index buffer.
+        /// </summary>
+        /// <param name="indices">Source index data.</param>
+        /// <param name="indexCount">Number of indices to upload.</param>
+        /// <param name="indexOffset">Index offset used for drawing.</param>
         private void UploadIndices(short[] indices, int indexCount, out int indexOffset)
         {
             EnsureIndexBuffer(indexCount);
@@ -500,6 +608,11 @@ namespace CutTheRope.Framework.Rendering
             _indexBufferOffset += indexCount;
         }
 
+        /// <summary>
+        /// Returns the next power-of-two value greater than or equal to the input.
+        /// </summary>
+        /// <param name="value">Value to round up.</param>
+        /// <returns>Next power-of-two value.</returns>
         private static int NextPowerOfTwo(int value)
         {
             int result = 1;
