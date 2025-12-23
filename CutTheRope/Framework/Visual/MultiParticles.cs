@@ -158,6 +158,11 @@ namespace CutTheRope.Framework.Visual
             {
                 return false;
             }
+            int maxQuads = drawer.vertices.Length;
+            if (quadCount > maxQuads)
+            {
+                quadCount = maxQuads;
+            }
             if (Global.Renderer is IQuadBatchRenderer quadRenderer)
             {
                 Color batchColor = OpenGL.GetCurrentColor();

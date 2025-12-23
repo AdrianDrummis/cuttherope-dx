@@ -192,6 +192,11 @@ namespace CutTheRope.GameMain
             {
                 return false;
             }
+            int maxQuads = drawer.vertices.Length;
+            if (quadCount > maxQuads)
+            {
+                quadCount = maxQuads;
+            }
             if (Global.Renderer is IQuadBatchRenderer quadRenderer)
             {
                 Material batchMaterial = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: true, constantColor: null);
