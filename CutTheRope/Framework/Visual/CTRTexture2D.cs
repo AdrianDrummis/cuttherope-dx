@@ -1,7 +1,9 @@
 using CutTheRope.Commons;
 using CutTheRope.Desktop;
 using CutTheRope.Framework.Core;
+using CutTheRope.Framework.Rendering;
 
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace CutTheRope.Framework.Visual
@@ -25,6 +27,21 @@ namespace CutTheRope.Framework.Visual
             array[9] = rect.w + point.x;
             array[10] = rect.h + point.y;
             float[] pointer2 = array;
+            float[] positions2D =
+            [
+                point.x,
+                point.y,
+                rect.w + point.x,
+                point.y,
+                point.x,
+                rect.h + point.y,
+                rect.w + point.x,
+                rect.h + point.y
+            ];
+            if (TryDrawTexturedQuad(t, positions2D, pointer))
+            {
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(t.Name());
             OpenGL.GlVertexPointer(3, 5, 0, pointer2);
@@ -82,10 +99,26 @@ namespace CutTheRope.Framework.Visual
             array[9] = t.quadRects[q].w + point.x;
             array[10] = t.quadRects[q].h + point.y;
             float[] pointer = array;
+            float[] positions2D =
+            [
+                point.x,
+                point.y,
+                t.quadRects[q].w + point.x,
+                point.y,
+                point.x,
+                t.quadRects[q].h + point.y,
+                t.quadRects[q].w + point.x,
+                t.quadRects[q].h + point.y
+            ];
+            float[] texCoords = quad2D.ToFloatArray();
+            if (TryDrawTexturedQuad(t, positions2D, texCoords))
+            {
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(t.Name());
             OpenGL.GlVertexPointer(3, 5, 0, pointer);
-            OpenGL.GlTexCoordPointer(2, 5, 0, quad2D.ToFloatArray());
+            OpenGL.GlTexCoordPointer(2, 5, 0, texCoords);
             OpenGL.GlDrawArrays(8, 0, 4);
         }
 
@@ -102,11 +135,48 @@ namespace CutTheRope.Framework.Visual
             array[9] = t._realWidth + point.x;
             array[10] = t._realHeight + point.y;
             float[] pointer2 = array;
+            float[] positions2D =
+            [
+                point.x,
+                point.y,
+                t._realWidth + point.x,
+                point.y,
+                point.x,
+                t._realHeight + point.y,
+                t._realWidth + point.x,
+                t._realHeight + point.y
+            ];
+            if (TryDrawTexturedQuad(t, positions2D, pointer))
+            {
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(t.Name());
             OpenGL.GlVertexPointer(3, 5, 0, pointer2);
             OpenGL.GlTexCoordPointer(2, 5, 0, pointer);
             OpenGL.GlDrawArrays(8, 0, 4);
+        }
+
+        internal static bool TryDrawTexturedQuad(CTRTexture2D texture, float[] positions, float[] texCoords)
+        {
+            if (Global.Renderer == null || texture == null || texture.xnaTexture_ == null)
+            {
+                return false;
+            }
+            if (positions.Length < 8 || texCoords.Length < 8)
+            {
+                return false;
+            }
+            VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[4];
+            Color color = OpenGL.GetCurrentColor();
+            vertices[0] = new VertexPositionColorTexture(new Vector3(positions[0], positions[1], 0f), color, new Vector2(texCoords[0], texCoords[1]));
+            vertices[1] = new VertexPositionColorTexture(new Vector3(positions[2], positions[3], 0f), color, new Vector2(texCoords[2], texCoords[3]));
+            vertices[2] = new VertexPositionColorTexture(new Vector3(positions[4], positions[5], 0f), color, new Vector2(texCoords[4], texCoords[5]));
+            vertices[3] = new VertexPositionColorTexture(new Vector3(positions[6], positions[7], 0f), color, new Vector2(texCoords[6], texCoords[7]));
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: false, constantColor: color);
+            MeshDrawCommand command = new(vertices, null, texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleStrip, 2);
+            Global.Renderer.DrawMesh(command);
+            return true;
         }
 
         public void CalculateForQuickDrawing()

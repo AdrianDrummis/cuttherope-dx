@@ -262,6 +262,10 @@ namespace CutTheRope.Framework.Visual
                 num + w,
                 num2 + h
             ];
+            if (CTRTexture2D.TryDrawTexturedQuad(texture, pointer, texture.quads[n].ToFloatArray()))
+            {
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(texture.Name());
             OpenGL.GlVertexPointer(2, 5, 0, pointer);
