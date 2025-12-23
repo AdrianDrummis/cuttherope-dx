@@ -1,7 +1,6 @@
 #nullable enable
 using System;
-
-using CutTheRope.Framework;
+using System.Buffers;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,17 +36,17 @@ namespace CutTheRope.Framework.Rendering
 
         private RenderTarget2D? _currentRenderTarget;
 
-        private VertexPositionColorTexture[] _quadVertexCache = [];
-
-        private short[] _quadIndexCache = [];
-
         private DynamicVertexBuffer? _vertexBuffer;
 
         private DynamicIndexBuffer? _indexBuffer;
 
+        private DynamicIndexBuffer? _quadIndexBuffer;
+
         private int _vertexBufferCapacity;
 
         private int _indexBufferCapacity;
+
+        private int _quadIndexCapacity;
 
         private int _vertexBufferOffset;
 
@@ -241,28 +240,9 @@ namespace CutTheRope.Framework.Rendering
             int vertexCount = quadCount * 4;
             int indexCount = quadCount * 6;
 
-            if (_quadVertexCache.Length < vertexCount)
-            {
-                _quadVertexCache = new VertexPositionColorTexture[vertexCount];
-            }
-            if (_quadIndexCache.Length < indexCount)
-            {
-                _quadIndexCache = new short[indexCount];
-                for (int i = 0; i < quadCount; i++)
-                {
-                    int baseVertex = i * 4;
-                    int baseIndex = i * 6;
-                    _quadIndexCache[baseIndex] = (short)baseVertex;
-                    _quadIndexCache[baseIndex + 1] = (short)(baseVertex + 1);
-                    _quadIndexCache[baseIndex + 2] = (short)(baseVertex + 2);
-                    _quadIndexCache[baseIndex + 3] = (short)(baseVertex + 3);
-                    _quadIndexCache[baseIndex + 4] = (short)(baseVertex + 2);
-                    _quadIndexCache[baseIndex + 5] = (short)(baseVertex + 1);
-                }
-            }
-
             Color fallbackColor = material.ConstantColor ?? Color.White;
             bool useVertexColor = colors != null && colors.Length >= vertexCount;
+            VertexPositionColorTexture[] vertices = ArrayPool<VertexPositionColorTexture>.Shared.Rent(vertexCount);
             int vertexIndex = 0;
             for (int i = 0; i < quadCount; i++)
             {
@@ -282,14 +262,40 @@ namespace CutTheRope.Framework.Rendering
                 Color c2 = useVertexColor ? colors![(i * 4) + 2].ToXNA() : fallbackColor;
                 Color c3 = useVertexColor ? colors![(i * 4) + 3].ToXNA() : fallbackColor;
 
-                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[0], pos[1], pos[2]), c0, new Vector2(tlX, tlY));
-                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[3], pos[4], pos[5]), c1, new Vector2(trX, trY));
-                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[6], pos[7], pos[8]), c2, new Vector2(blX, blY));
-                _quadVertexCache[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[9], pos[10], pos[11]), c3, new Vector2(brX, brY));
+                vertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[0], pos[1], pos[2]), c0, new Vector2(tlX, tlY));
+                vertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[3], pos[4], pos[5]), c1, new Vector2(trX, trY));
+                vertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[6], pos[7], pos[8]), c2, new Vector2(blX, blY));
+                vertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[9], pos[10], pos[11]), c3, new Vector2(brX, brY));
             }
 
-            MeshDrawCommand command = new(_quadVertexCache, _quadIndexCache, texture, material, world, PrimitiveType.TriangleList, indexCount / 3, vertexCount, indexCount);
-            DrawMesh(command);
+            BasicEffect effect = GetEffectForMaterial(material);
+            ConfigureEffect(effect, material, texture, world);
+            EnsureQuadIndexBuffer(indexCount);
+
+            try
+            {
+                UploadVertices(vertices, vertexCount, out int vertexOffset);
+                int primitiveCount = indexCount / 3;
+                _graphicsDevice.SetVertexBuffer(_vertexBuffer);
+                _graphicsDevice.Indices = _quadIndexBuffer;
+
+                foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+                {
+                    pass.Apply();
+                    _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, vertexOffset, 0, primitiveCount);
+                }
+            }
+            finally
+            {
+                ArrayPool<VertexPositionColorTexture>.Shared.Return(vertices);
+            }
+
+            Stats = Stats with
+            {
+                DrawCalls = Stats.DrawCalls + 1,
+                Vertices = Stats.Vertices + vertexCount,
+                Indices = Stats.Indices + indexCount
+            };
         }
 
         public void EndFrame()
@@ -306,6 +312,7 @@ namespace CutTheRope.Framework.Rendering
             _rasterizerScissor?.Dispose();
             _vertexBuffer?.Dispose();
             _indexBuffer?.Dispose();
+            _quadIndexBuffer?.Dispose();
         }
 
         public void UpdateViewProjection(Matrix view, Matrix projection)
@@ -427,6 +434,41 @@ namespace CutTheRope.Framework.Rendering
                 _indexBufferCapacity = NextPowerOfTwo(indexCount);
                 _indexBufferOffset = 0;
                 _indexBuffer = new DynamicIndexBuffer(_graphicsDevice, IndexElementSize.SixteenBits, _indexBufferCapacity, BufferUsage.WriteOnly);
+            }
+        }
+
+        private void EnsureQuadIndexBuffer(int indexCount)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before drawing.");
+            }
+            if (_quadIndexBuffer == null || indexCount > _quadIndexCapacity)
+            {
+                _quadIndexBuffer?.Dispose();
+                _quadIndexCapacity = NextPowerOfTwo(indexCount);
+                int remainder = _quadIndexCapacity % 6;
+                if (remainder != 0)
+                {
+                    _quadIndexCapacity += 6 - remainder;
+                }
+                _quadIndexBuffer = new DynamicIndexBuffer(_graphicsDevice, IndexElementSize.SixteenBits, _quadIndexCapacity, BufferUsage.WriteOnly);
+
+                int quadCapacity = _quadIndexCapacity / 6;
+                int fullIndexCount = quadCapacity * 6;
+                short[] indices = new short[fullIndexCount];
+                for (int i = 0; i < quadCapacity; i++)
+                {
+                    int baseVertex = i * 4;
+                    int baseIndex = i * 6;
+                    indices[baseIndex] = (short)baseVertex;
+                    indices[baseIndex + 1] = (short)(baseVertex + 1);
+                    indices[baseIndex + 2] = (short)(baseVertex + 2);
+                    indices[baseIndex + 3] = (short)(baseVertex + 3);
+                    indices[baseIndex + 4] = (short)(baseVertex + 2);
+                    indices[baseIndex + 5] = (short)(baseVertex + 1);
+                }
+                _quadIndexBuffer.SetData(indices);
             }
         }
 
