@@ -2,6 +2,8 @@
 using System;
 using System.Buffers;
 
+using CutTheRope.Framework;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
