@@ -98,9 +98,12 @@ namespace CutTheRope.Framework.Visual
             {
                 UpdateParticle(ref particles[particleIdx], delta);
             }
-            OpenGL.GlBindBuffer(2, colorsID);
-            OpenGL.GlBufferData(2, colors, 3);
-            OpenGL.GlBindBuffer(2, 0U);
+            if (Global.Renderer == null)
+            {
+                OpenGL.GlBindBuffer(2, colorsID);
+                OpenGL.GlBufferData(2, colors, 3);
+                OpenGL.GlBindBuffer(2, 0U);
+            }
         }
 
         public float rotateSpeed;
