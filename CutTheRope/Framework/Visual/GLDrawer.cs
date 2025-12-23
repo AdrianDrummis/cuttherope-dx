@@ -1,5 +1,9 @@
 using CutTheRope.Desktop;
 using CutTheRope.Framework.Core;
+using CutTheRope.Framework.Rendering;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CutTheRope.Framework.Visual
 {
@@ -348,6 +352,10 @@ namespace CutTheRope.Framework.Visual
                 x + w,
                 y + h
             ];
+            if (TryDrawTriangleStrip(pointer, 4, fill))
+            {
+                return;
+            }
             OpenGL.GlColor4f(fill.ToXNA());
             OpenGL.GlVertexPointer(2, 5, 0, pointer);
             OpenGL.GlDrawArrays(8, 0, 4);
@@ -362,6 +370,10 @@ namespace CutTheRope.Framework.Visual
 
         public static void DrawSolidPolygon(float[] vertices, int vertexCount, RGBAColor border, RGBAColor fill)
         {
+            if (TryDrawTriangleStrip(vertices, vertexCount, fill))
+            {
+                return;
+            }
             OpenGL.GlVertexPointer(2, 5, 0, vertices);
             OpenGL.GlColor4f(fill.ToXNA());
             OpenGL.GlDrawArrays(8, 0, vertexCount);
@@ -371,9 +383,35 @@ namespace CutTheRope.Framework.Visual
 
         public static void DrawSolidPolygonWOBorder(float[] vertices, int vertexCount, RGBAColor fill)
         {
+            if (TryDrawTriangleStrip(vertices, vertexCount, fill))
+            {
+                return;
+            }
             OpenGL.GlVertexPointer(2, 5, 0, vertices);
             OpenGL.GlColor4f(fill.ToXNA());
             OpenGL.GlDrawArrays(8, 0, vertexCount);
+        }
+
+        private static bool TryDrawTriangleStrip(float[] vertices, int vertexCount, RGBAColor color)
+        {
+            if (Global.Renderer == null || vertexCount < 3)
+            {
+                return false;
+            }
+            VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
+            Color xnaColor = color.ToXNA();
+            for (int i = 0; i < vertexCount; i++)
+            {
+                int index = i * 2;
+                meshVertices[i] = new VertexPositionColorTexture(
+                    new Vector3(vertices[index], vertices[index + 1], 0f),
+                    xnaColor,
+                    Vector2.Zero);
+            }
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: false, useVertexColor: true, constantColor: null);
+            MeshDrawCommand command = new(meshVertices, null, null, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleStrip, vertexCount - 2);
+            Global.Renderer.DrawMesh(command);
+            return true;
         }
 
         private static readonly RGBAColor[] colors =

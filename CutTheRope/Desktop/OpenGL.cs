@@ -616,6 +616,11 @@ namespace CutTheRope.Desktop
             return s_Color;
         }
 
+        public static Material GetMaterialForCurrentState(bool useTexture, bool useVertexColor, Color? constantColor)
+        {
+            return CreateMaterial(useTexture, useVertexColor, constantColor);
+        }
+
         public static void Optimized_DrawTriangleList(VertexPositionNormalTexture[] vertices, short[] indices)
         {
             if (LegacyGlAdapter.IsAttached)
