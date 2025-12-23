@@ -10,6 +10,12 @@ namespace CutTheRope.Framework.Rendering
 
         void BeginFrame(in RenderFrameContext context);
 
+        void UpdateViewProjection(Matrix view, Matrix projection);
+
+        void SetViewport(Viewport viewport, RenderTarget2D? renderTarget = null);
+
+        void SetScissor(Rectangle? scissor);
+
         void Clear(Color color);
 
         void DrawQuad(in QuadDrawCommand command);

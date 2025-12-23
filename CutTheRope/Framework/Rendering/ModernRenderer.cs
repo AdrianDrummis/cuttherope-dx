@@ -27,6 +27,16 @@ namespace CutTheRope.Framework.Rendering
 
         private RasterizerState? _rasterizerScissor;
 
+        private Matrix _currentView = Matrix.Identity;
+
+        private Matrix _currentProjection = Matrix.Identity;
+
+        private Viewport _currentViewport;
+
+        private Rectangle? _currentScissor;
+
+        private RenderTarget2D? _currentRenderTarget;
+
         public RendererStats Stats => _stats;
 
         public void Initialize(GraphicsDevice device)
@@ -77,19 +87,22 @@ namespace CutTheRope.Framework.Rendering
             _frameContext = context;
             _stats = default;
 
-            _graphicsDevice.SetRenderTarget(context.RenderTarget);
-            if (context.Viewport.HasValue)
+            _currentRenderTarget = context.RenderTarget;
+            _currentView = context.View;
+            _currentProjection = context.Projection;
+            _currentViewport = context.Viewport ?? _graphicsDevice.Viewport;
+            _currentScissor = context.Scissor;
+
+            _graphicsDevice.SetRenderTarget(_currentRenderTarget);
+            _graphicsDevice.Viewport = _currentViewport;
+            if (_currentScissor.HasValue)
             {
-                _graphicsDevice.Viewport = context.Viewport.Value;
-            }
-            if (context.Scissor.HasValue)
-            {
-                _graphicsDevice.ScissorRectangle = context.Scissor.Value;
+                _graphicsDevice.ScissorRectangle = _currentScissor.Value;
             }
 
-            ApplyMatrices(_effectTexture, context);
-            ApplyMatrices(_effectTextureColor, context);
-            ApplyMatrices(_effectColor, context);
+            ApplyMatrices(_effectTexture);
+            ApplyMatrices(_effectTextureColor);
+            ApplyMatrices(_effectColor);
         }
 
         public void Clear(Color color)
@@ -198,14 +211,53 @@ namespace CutTheRope.Framework.Rendering
             _rasterizerScissor?.Dispose();
         }
 
-        private static void ApplyMatrices(BasicEffect? effect, in RenderFrameContext context)
+        public void UpdateViewProjection(Matrix view, Matrix projection)
+        {
+            _currentView = view;
+            _currentProjection = projection;
+            ApplyMatrices(_effectTexture);
+            ApplyMatrices(_effectTextureColor);
+            ApplyMatrices(_effectColor);
+        }
+
+        public void SetViewport(Viewport viewport, RenderTarget2D? renderTarget = null)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before SetViewport.");
+            }
+            _currentViewport = viewport;
+            _currentRenderTarget = renderTarget ?? _currentRenderTarget;
+            _graphicsDevice.SetRenderTarget(_currentRenderTarget);
+            _graphicsDevice.Viewport = _currentViewport;
+            if (_currentScissor.HasValue)
+            {
+                _graphicsDevice.ScissorRectangle = _currentScissor.Value;
+            }
+        }
+
+        public void SetScissor(Rectangle? scissor)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before SetScissor.");
+            }
+            _currentScissor = scissor;
+            if (_currentScissor.HasValue)
+            {
+                _graphicsDevice.ScissorRectangle = _currentScissor.Value;
+            }
+            _graphicsDevice.RasterizerState = _currentScissor.HasValue ? _rasterizerScissor! : _rasterizerNoScissor!;
+        }
+
+        private void ApplyMatrices(BasicEffect? effect)
         {
             if (effect == null)
             {
                 return;
             }
-            effect.View = context.View;
-            effect.Projection = context.Projection;
+            effect.View = _currentView;
+            effect.Projection = _currentProjection;
             effect.World = Matrix.Identity;
         }
 
@@ -237,7 +289,7 @@ namespace CutTheRope.Framework.Rendering
             effect.World = world;
             _graphicsDevice!.BlendState = material.BlendState;
             _graphicsDevice.SamplerStates[0] = material.SamplerState;
-            _graphicsDevice.RasterizerState = _frameContext.Scissor.HasValue ? _rasterizerScissor! : _rasterizerNoScissor!;
+            _graphicsDevice.RasterizerState = _currentScissor.HasValue ? _rasterizerScissor! : _rasterizerNoScissor!;
             _stats = _stats with { StateChanges = _stats.StateChanges + 1 };
         }
     }
