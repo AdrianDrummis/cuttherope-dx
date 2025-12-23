@@ -49,6 +49,10 @@ namespace CutTheRope.Framework.Rendering
 
         private int _indexBufferCapacity;
 
+        private int _vertexBufferOffset;
+
+        private int _indexBufferOffset;
+
         public RendererStats Stats { get; private set; }
 
         public void Initialize(GraphicsDevice device)
@@ -150,13 +154,11 @@ namespace CutTheRope.Framework.Rendering
                         : command.Indices.Length / 3;
                     int vertexCount = command.Vertices.Length;
                     int indexCount = command.Indices.Length;
-                    EnsureVertexBuffer(vertexCount);
-                    EnsureIndexBuffer(indexCount);
-                    _vertexBuffer!.SetData(command.Vertices, 0, vertexCount, SetDataOptions.Discard);
-                    _indexBuffer!.SetData(command.Indices, 0, indexCount, SetDataOptions.Discard);
+                    UploadVertices(command.Vertices, vertexCount, out int vertexOffset);
+                    UploadIndices(command.Indices, indexCount, out int indexOffset);
                     _graphicsDevice.SetVertexBuffer(_vertexBuffer);
                     _graphicsDevice.Indices = _indexBuffer;
-                    _graphicsDevice.DrawIndexedPrimitives(command.PrimitiveType, 0, 0, vertexCount, 0, primitiveCount);
+                    _graphicsDevice.DrawIndexedPrimitives(command.PrimitiveType, vertexOffset, indexOffset, primitiveCount);
                 }
                 else
                 {
@@ -164,10 +166,9 @@ namespace CutTheRope.Framework.Rendering
                         ? command.Vertices.Length - 2
                         : command.Vertices.Length / 3;
                     int vertexCount = command.Vertices.Length;
-                    EnsureVertexBuffer(vertexCount);
-                    _vertexBuffer!.SetData(command.Vertices, 0, vertexCount, SetDataOptions.Discard);
+                    UploadVertices(command.Vertices, vertexCount, out int vertexOffset);
                     _graphicsDevice.SetVertexBuffer(_vertexBuffer);
-                    _graphicsDevice.DrawPrimitives(command.PrimitiveType, 0, primitiveCount);
+                    _graphicsDevice.DrawPrimitives(command.PrimitiveType, vertexOffset, primitiveCount);
                 }
             }
 
@@ -198,20 +199,17 @@ namespace CutTheRope.Framework.Rendering
                 pass.Apply();
                 if (command.Indices != null)
                 {
-                    EnsureVertexBuffer(command.VertexCount);
-                    EnsureIndexBuffer(command.IndexCount);
-                    _vertexBuffer!.SetData(command.Vertices, 0, command.VertexCount, SetDataOptions.Discard);
-                    _indexBuffer!.SetData(command.Indices, 0, command.IndexCount, SetDataOptions.Discard);
+                    UploadVertices(command.Vertices, command.VertexCount, out int vertexOffset);
+                    UploadIndices(command.Indices, command.IndexCount, out int indexOffset);
                     _graphicsDevice.SetVertexBuffer(_vertexBuffer);
                     _graphicsDevice.Indices = _indexBuffer;
-                    _graphicsDevice.DrawIndexedPrimitives(command.PrimitiveType, 0, 0, command.VertexCount, 0, command.PrimitiveCount);
+                    _graphicsDevice.DrawIndexedPrimitives(command.PrimitiveType, vertexOffset, indexOffset, command.PrimitiveCount);
                 }
                 else
                 {
-                    EnsureVertexBuffer(command.VertexCount);
-                    _vertexBuffer!.SetData(command.Vertices, 0, command.VertexCount, SetDataOptions.Discard);
+                    UploadVertices(command.Vertices, command.VertexCount, out int vertexOffset);
                     _graphicsDevice.SetVertexBuffer(_vertexBuffer);
-                    _graphicsDevice.DrawPrimitives(command.PrimitiveType, 0, command.PrimitiveCount);
+                    _graphicsDevice.DrawPrimitives(command.PrimitiveType, vertexOffset, command.PrimitiveCount);
                 }
             }
 
@@ -412,6 +410,7 @@ namespace CutTheRope.Framework.Rendering
             {
                 _vertexBuffer?.Dispose();
                 _vertexBufferCapacity = NextPowerOfTwo(vertexCount);
+                _vertexBufferOffset = 0;
                 _vertexBuffer = new DynamicVertexBuffer(_graphicsDevice, VertexPositionColorTexture.VertexDeclaration, _vertexBufferCapacity, BufferUsage.WriteOnly);
             }
         }
@@ -426,8 +425,37 @@ namespace CutTheRope.Framework.Rendering
             {
                 _indexBuffer?.Dispose();
                 _indexBufferCapacity = NextPowerOfTwo(indexCount);
+                _indexBufferOffset = 0;
                 _indexBuffer = new DynamicIndexBuffer(_graphicsDevice, IndexElementSize.SixteenBits, _indexBufferCapacity, BufferUsage.WriteOnly);
             }
+        }
+
+        private void UploadVertices(VertexPositionColorTexture[] vertices, int vertexCount, out int vertexOffset)
+        {
+            EnsureVertexBuffer(vertexCount);
+            if (_vertexBufferOffset + vertexCount > _vertexBufferCapacity)
+            {
+                _vertexBufferOffset = 0;
+            }
+            SetDataOptions options = _vertexBufferOffset == 0 ? SetDataOptions.Discard : SetDataOptions.NoOverwrite;
+            vertexOffset = _vertexBufferOffset;
+            int stride = VertexPositionColorTexture.VertexDeclaration.VertexStride;
+            _vertexBuffer!.SetData(vertexOffset * stride, vertices, 0, vertexCount, stride, options);
+            _vertexBufferOffset += vertexCount;
+        }
+
+        private void UploadIndices(short[] indices, int indexCount, out int indexOffset)
+        {
+            EnsureIndexBuffer(indexCount);
+            if (_indexBufferOffset + indexCount > _indexBufferCapacity)
+            {
+                _indexBufferOffset = 0;
+            }
+            SetDataOptions options = _indexBufferOffset == 0 ? SetDataOptions.Discard : SetDataOptions.NoOverwrite;
+            indexOffset = _indexBufferOffset;
+            int offsetInBytes = indexOffset * sizeof(short);
+            _indexBuffer!.SetData(offsetInBytes, indices, 0, indexCount, options);
+            _indexBufferOffset += indexCount;
         }
 
         private static int NextPowerOfTwo(int value)
