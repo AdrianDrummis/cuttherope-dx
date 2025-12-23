@@ -57,6 +57,11 @@ namespace CutTheRope.GameMain
         {
             PreDraw();
             OpenGL.GlBlendFunc(BlendingFactor.GLSRCALPHA, BlendingFactor.GLONE);
+            if (TryDrawTexturedParticles(particleIdx, useVertexColor: true))
+            {
+                PostDraw();
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(drawer.image.texture.Name());
             OpenGL.GlVertexPointer(3, 5, 0, ToFloatArray(drawer.vertices));

@@ -1,5 +1,11 @@
+using System;
+
 using CutTheRope.Desktop;
 using CutTheRope.Framework.Core;
+using CutTheRope.Framework.Rendering;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CutTheRope.Framework.Visual
 {
@@ -120,6 +126,11 @@ namespace CutTheRope.Framework.Visual
             {
                 OpenGL.GlBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
             }
+            if (TryDrawTexturedParticles(particleIdx, useVertexColor: true))
+            {
+                PostDraw();
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(drawer.image.texture.Name());
             OpenGL.GlVertexPointer(3, 5, 0, ToFloatArray(drawer.vertices));
@@ -132,6 +143,54 @@ namespace CutTheRope.Framework.Visual
             OpenGL.GlBindBuffer(2, 0U);
             OpenGL.GlDisableClientState(13);
             PostDraw();
+        }
+
+        protected bool TryDrawTexturedParticles(int quadCount, bool useVertexColor)
+        {
+            if (Global.Renderer == null || drawer?.image?.texture?.xnaTexture_ == null)
+            {
+                return false;
+            }
+            if (quadCount <= 0)
+            {
+                return false;
+            }
+            int maxQuads = drawer.vertices.Length;
+            if (quadCount > maxQuads)
+            {
+                quadCount = maxQuads;
+            }
+            int vertexCount = quadCount * 4;
+            VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
+            Color currentColor = OpenGL.GetCurrentColor();
+            int vertexIndex = 0;
+            for (int i = 0; i < quadCount; i++)
+            {
+                Quad3D quadVertices = drawer.vertices[i];
+                Quad2D quadTex = drawer.texCoordinates[i];
+                float[] pos = quadVertices.ToFloatArray();
+                float[] uv = quadTex.ToFloatArray();
+                Color c0 = useVertexColor ? colors[(i * 4) + 0].ToXNA() : currentColor;
+                Color c1 = useVertexColor ? colors[(i * 4) + 1].ToXNA() : currentColor;
+                Color c2 = useVertexColor ? colors[(i * 4) + 2].ToXNA() : currentColor;
+                Color c3 = useVertexColor ? colors[(i * 4) + 3].ToXNA() : currentColor;
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[0], pos[1], pos[2]), c0, new Vector2(uv[0], uv[1]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[3], pos[4], pos[5]), c1, new Vector2(uv[2], uv[3]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[6], pos[7], pos[8]), c2, new Vector2(uv[4], uv[5]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[9], pos[10], pos[11]), c3, new Vector2(uv[6], uv[7]));
+            }
+            int indexCount = quadCount * 6;
+            short[] drawIndices = drawer.indices;
+            if (indexCount != drawIndices.Length)
+            {
+                short[] trimmed = new short[indexCount];
+                Array.Copy(drawIndices, trimmed, indexCount);
+                drawIndices = trimmed;
+            }
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: useVertexColor, constantColor: useVertexColor ? null : currentColor);
+            MeshDrawCommand command = new(meshVertices, drawIndices, drawer.image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3);
+            Global.Renderer.DrawMesh(command);
+            return true;
         }
 
         protected override void Dispose(bool disposing)

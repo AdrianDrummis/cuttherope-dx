@@ -4,7 +4,11 @@ using CutTheRope.Desktop;
 using CutTheRope.Framework;
 using CutTheRope.Framework.Core;
 using CutTheRope.Framework.Helpers;
+using CutTheRope.Framework.Rendering;
 using CutTheRope.Framework.Visual;
+
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CutTheRope.GameMain
 {
@@ -154,6 +158,11 @@ namespace CutTheRope.GameMain
             {
                 PreDraw();
                 OpenGL.GlBlendFunc(BlendingFactor.GLSRCALPHA, BlendingFactor.GLONE);
+                if (TryDrawPollen(pollenCount - 1))
+                {
+                    PostDraw();
+                    return;
+                }
                 OpenGL.GlEnable(0);
                 OpenGL.GlBindTexture(drawer.image.texture.Name());
                 OpenGL.GlVertexPointer(3, 5, 0, ToFloatArray(drawer.vertices));
@@ -168,6 +177,53 @@ namespace CutTheRope.GameMain
                 OpenGL.GlDisableClientState(13);
                 PostDraw();
             }
+        }
+
+        private bool TryDrawPollen(int quadCount)
+        {
+            if (Global.Renderer == null || drawer?.image?.texture?.xnaTexture_ == null)
+            {
+                return false;
+            }
+            if (quadCount <= 0)
+            {
+                return false;
+            }
+            int maxQuads = drawer.vertices.Length;
+            if (quadCount > maxQuads)
+            {
+                quadCount = maxQuads;
+            }
+            int vertexCount = quadCount * 4;
+            VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
+            int vertexIndex = 0;
+            for (int i = 0; i < quadCount; i++)
+            {
+                Quad3D quadVertices = drawer.vertices[i];
+                Quad2D quadTex = drawer.texCoordinates[i];
+                float[] pos = quadVertices.ToFloatArray();
+                float[] uv = quadTex.ToFloatArray();
+                Color c0 = colors[(i * 4) + 0].ToXNA();
+                Color c1 = colors[(i * 4) + 1].ToXNA();
+                Color c2 = colors[(i * 4) + 2].ToXNA();
+                Color c3 = colors[(i * 4) + 3].ToXNA();
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[0], pos[1], pos[2]), c0, new Vector2(uv[0], uv[1]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[3], pos[4], pos[5]), c1, new Vector2(uv[2], uv[3]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[6], pos[7], pos[8]), c2, new Vector2(uv[4], uv[5]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[9], pos[10], pos[11]), c3, new Vector2(uv[6], uv[7]));
+            }
+            int indexCount = quadCount * 6;
+            short[] drawIndices = drawer.indices;
+            if (indexCount != drawIndices.Length)
+            {
+                short[] trimmed = new short[indexCount];
+                Array.Copy(drawIndices, trimmed, indexCount);
+                drawIndices = trimmed;
+            }
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: true, constantColor: null);
+            MeshDrawCommand command = new(meshVertices, drawIndices, drawer.image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3);
+            Global.Renderer.DrawMesh(command);
+            return true;
         }
 
         private ImageMultiDrawer drawer;
