@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 using Microsoft.Xna.Framework;
@@ -164,7 +165,7 @@ namespace CutTheRope.Framework.Rendering
             }
 
             BasicEffect effect = GetEffectForMaterial(command.Material);
-            ConfigureEffect(effect, command.Material, null, command.World);
+            ConfigureEffect(effect, command.Material, command.Texture, command.World);
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
@@ -190,7 +191,7 @@ namespace CutTheRope.Framework.Rendering
         public void DrawParticles(in ParticleDrawCommand command)
         {
             // Phase 1: reuse mesh path; later phases will move to buffer-backed particle batching.
-            MeshDrawCommand meshCommand = new(command.Vertices, command.Indices, command.Material, command.World, PrimitiveType.TriangleList, command.Indices.Length / 3);
+            MeshDrawCommand meshCommand = new(command.Vertices, command.Indices, null, command.Material, command.World, PrimitiveType.TriangleList, command.Indices.Length / 3);
             DrawMesh(meshCommand);
         }
 
@@ -276,11 +277,21 @@ namespace CutTheRope.Framework.Rendering
                     effect.DiffuseColor = material.ConstantColor.Value.ToVector3();
                     effect.Alpha = material.ConstantColor.Value.A / 255f;
                 }
+                else if (material.UseVertexColor)
+                {
+                    effect.DiffuseColor = Vector3.One;
+                    effect.Alpha = 1f;
+                }
             }
             else if (material.ConstantColor.HasValue)
             {
                 effect.DiffuseColor = material.ConstantColor.Value.ToVector3();
                 effect.Alpha = material.ConstantColor.Value.A / 255f;
+            }
+            else if (material.UseVertexColor)
+            {
+                effect.DiffuseColor = Vector3.One;
+                effect.Alpha = 1f;
             }
 
             effect.World = world;

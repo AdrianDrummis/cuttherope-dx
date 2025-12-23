@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 using CutTheRope.Framework.Rendering;
@@ -52,7 +53,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
             Renderer?.EndFrame();
         }
 
-        public static void DrawTextured(VertexPositionNormalTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
+        public static void DrawTextured(Texture2D texture, VertexPositionNormalTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
         {
             if (Renderer == null || vertices.Length == 0)
             {
@@ -62,10 +63,29 @@ namespace CutTheRope.Framework.Rendering.Legacy
             MeshDrawCommand command = new(
                 converted,
                 indices,
+                texture,
                 material ?? MaterialPresets.TexturedAlphaBlend,
                 world,
                 primitiveType,
                 GetPrimitiveCount(primitiveType, converted.Length, indices?.Length ?? 0)
+            );
+            Renderer.DrawMesh(command);
+        }
+
+        public static void DrawTexturedColored(Texture2D texture, VertexPositionColorTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
+        {
+            if (Renderer == null || vertices.Length == 0)
+            {
+                return;
+            }
+            MeshDrawCommand command = new(
+                vertices,
+                indices,
+                texture,
+                material ?? MaterialPresets.TexturedVertexColorAlphaBlend,
+                world,
+                primitiveType,
+                GetPrimitiveCount(primitiveType, vertices.Length, indices?.Length ?? 0)
             );
             Renderer.DrawMesh(command);
         }
@@ -80,6 +100,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
             MeshDrawCommand command = new(
                 converted,
                 indices,
+                null,
                 material ?? MaterialPresets.SolidColorAlphaBlend,
                 world,
                 primitiveType,
@@ -114,6 +135,9 @@ namespace CutTheRope.Framework.Rendering.Legacy
             {
                 PrimitiveType.TriangleStrip => (indexCount > 0 ? indexCount : vertexCount) - 2,
                 PrimitiveType.TriangleList => (indexCount > 0 ? indexCount : vertexCount) / 3,
+                PrimitiveType.LineList => throw new NotImplementedException(),
+                PrimitiveType.LineStrip => throw new NotImplementedException(),
+                PrimitiveType.PointList => throw new NotImplementedException(),
                 _ => 0
             };
         }

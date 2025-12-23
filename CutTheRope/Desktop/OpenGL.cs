@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 
 using CutTheRope.Framework;
+using CutTheRope.Framework.Rendering;
+using CutTheRope.Framework.Rendering.Legacy;
 using CutTheRope.Framework.Visual;
 
 using Microsoft.Xna.Framework;
@@ -24,6 +26,7 @@ namespace CutTheRope.Desktop
             if (cap == 1)
             {
                 s_Blend.Enable();
+                s_blendEnabled = true;
             }
             s_glServerSideFlags[cap] = true;
         }
@@ -37,6 +40,7 @@ namespace CutTheRope.Desktop
             if (cap == 1)
             {
                 s_Blend.Disable();
+                s_blendEnabled = false;
             }
             s_glServerSideFlags[cap] = false;
         }
@@ -88,9 +92,17 @@ namespace CutTheRope.Desktop
                 }
                 Global.GraphicsDevice.SetRenderTarget(s_RenderTarget);
                 Global.GraphicsDevice.Clear(Color.Black);
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.SetViewport(s_Viewport, s_RenderTarget);
+                }
                 return;
             }
             s_RenderTarget = null;
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.SetViewport(s_Viewport, null);
+            }
         }
 
         public static void GlMatrixMode(int mode)
@@ -108,6 +120,10 @@ namespace CutTheRope.Desktop
             if (s_glMatrixMode == 15)
             {
                 s_matrixProjection = Matrix.Identity;
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.SetViewProjection(Matrix.Identity, s_matrixProjection);
+                }
                 return;
             }
             if (s_glMatrixMode == 16)
@@ -124,6 +140,10 @@ namespace CutTheRope.Desktop
         public static void GlOrthof(double left, double right, double bottom, double top, double near, double far)
         {
             s_matrixProjection = Matrix.CreateOrthographicOffCenter((float)left, (float)right, (float)bottom, (float)top, (float)near, (float)far);
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.SetViewProjection(Matrix.Identity, s_matrixProjection);
+            }
         }
 
         public static void GlPopMatrix()
@@ -188,6 +208,12 @@ namespace CutTheRope.Desktop
 
         public static void GlClear(int mask_NotUsedParam)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.SetViewProjection(Matrix.Identity, s_matrixProjection);
+                LegacyGlAdapter.Clear(s_glClearColor);
+                return;
+            }
             BlendParams.ApplyDefault();
             Global.GraphicsDevice.Clear(s_glClearColor);
         }
@@ -200,6 +226,9 @@ namespace CutTheRope.Desktop
         public static void GlBlendFunc(BlendingFactor sfactor, BlendingFactor dfactor)
         {
             s_Blend = new BlendParams(sfactor, dfactor);
+            s_blendSrc = sfactor;
+            s_blendDst = dfactor;
+            s_blendIsDefault = false;
         }
 
         public static void DrawSegment(float x1, float y1, float x2, float y2, RGBAColor color)
@@ -425,6 +454,41 @@ namespace CutTheRope.Desktop
             return basicEffect;
         }
 
+        private static BlendState GetBlendState()
+        {
+            if (!s_blendEnabled || s_blendIsDefault)
+            {
+                return BlendState.Opaque;
+            }
+            if (s_blendSrc == BlendingFactor.GLSRCALPHA && s_blendDst == BlendingFactor.GLONEMINUSSRCALPHA)
+            {
+                return BlendState.NonPremultiplied;
+            }
+            if (s_blendSrc == BlendingFactor.GLONE && s_blendDst == BlendingFactor.GLONEMINUSSRCALPHA)
+            {
+                return BlendState.AlphaBlend;
+            }
+            if (s_blendSrc == BlendingFactor.GLSRCALPHA && s_blendDst == BlendingFactor.GLONE)
+            {
+                s_blendStateSourceAlphaOne ??= new BlendState
+                {
+                    AlphaBlendFunction = BlendFunction.Add,
+                    AlphaDestinationBlend = Blend.One,
+                    AlphaSourceBlend = Blend.SourceAlpha,
+                    ColorBlendFunction = BlendFunction.Add,
+                    ColorDestinationBlend = Blend.One,
+                    ColorSourceBlend = Blend.SourceAlpha
+                };
+                return s_blendStateSourceAlphaOne;
+            }
+            return BlendState.Opaque;
+        }
+
+        private static Material CreateMaterial(bool useTexture, bool useVertexColor, Color? constantColor)
+        {
+            return new Material(GetBlendState(), SamplerState.LinearClamp, effect: null, constantColor: constantColor, useVertexColor: useVertexColor, useTexture: useTexture);
+        }
+
         private static void InitRasterizerState()
         {
             s_rasterizerStateSolidColor = new RasterizerState
@@ -462,6 +526,12 @@ namespace CutTheRope.Desktop
 
         public static void Optimized_DrawTriangleStripColored(VertexPositionColor[] vertices)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                Material material = CreateMaterial(useTexture: false, useVertexColor: true, constantColor: null);
+                LegacyGlAdapter.DrawColored(vertices, null, s_matrixModelView, material, PrimitiveType.TriangleStrip);
+                return;
+            }
             BasicEffect effect = GetEffect(false, true);
             if (effect.Alpha == 0f)
             {
@@ -476,6 +546,14 @@ namespace CutTheRope.Desktop
 
         private static void DrawTriangleStripColored(int first, int count)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                _ = s_glClientStateFlags.TryGetValue(13, out bool hasColorPointer);
+                VertexPositionColor[] legacyVertices = s_LastVertices_PositionColor = hasColorPointer ? ConstructColorVertices() : ConstructCurrentColorVertices();
+                Material material = CreateMaterial(useTexture: false, useVertexColor: true, constantColor: null);
+                LegacyGlAdapter.DrawColored(legacyVertices, null, s_matrixModelView, material, PrimitiveType.TriangleStrip);
+                return;
+            }
             BasicEffect effect = GetEffect(false, true);
             if (effect.Alpha == 0f)
             {
@@ -493,6 +571,17 @@ namespace CutTheRope.Desktop
 
         private static void DrawTriangleStripTextured(int first, int count)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                if (s_Texture == null)
+                {
+                    return;
+                }
+                VertexPositionNormalTexture[] legacyVertices = ConstructTexturedVertices();
+                Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, legacyVertices, null, s_matrixModelView, material, PrimitiveType.TriangleStrip);
+                return;
+            }
             BasicEffect effect = GetEffect(true, false);
             if (effect.Alpha == 0f)
             {
@@ -529,6 +618,16 @@ namespace CutTheRope.Desktop
 
         public static void Optimized_DrawTriangleList(VertexPositionNormalTexture[] vertices, short[] indices)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                if (s_Texture == null)
+                {
+                    return;
+                }
+                Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, vertices, indices, s_matrixModelView, material, PrimitiveType.TriangleList);
+                return;
+            }
             BasicEffect effect = GetEffect(true, false);
             if (effect.Alpha == 0f)
             {
@@ -549,6 +648,17 @@ namespace CutTheRope.Desktop
                 DrawTriangleListColored(first, count, indices);
                 return;
             }
+            if (LegacyGlAdapter.IsAttached)
+            {
+                if (s_Texture == null)
+                {
+                    return;
+                }
+                VertexPositionNormalTexture[] legacyVertices = s_LastVertices_PositionNormalTexture = ConstructTexturedVertices();
+                Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, legacyVertices, indices, s_matrixModelView, material, PrimitiveType.TriangleList);
+                return;
+            }
             BasicEffect effect = GetEffect(true, false);
             if (effect.Alpha == 0f)
             {
@@ -567,6 +677,18 @@ namespace CutTheRope.Desktop
         {
             if (count == 0)
             {
+                return;
+            }
+            if (LegacyGlAdapter.IsAttached)
+            {
+                if (s_Texture == null)
+                {
+                    return;
+                }
+                int vertexCount = count / 3 * 2;
+                VertexPositionColorTexture[] legacyVertexData = ConstructTexturedColoredVertices(vertexCount);
+                Material material = CreateMaterial(useTexture: true, useVertexColor: true, constantColor: null);
+                LegacyGlAdapter.DrawTexturedColored(s_Texture.xnaTexture_, legacyVertexData, indices, s_matrixModelView, material, PrimitiveType.TriangleList);
                 return;
             }
             BasicEffect effect = GetEffect(true, true);
@@ -604,7 +726,12 @@ namespace CutTheRope.Desktop
                 float num = FrameworkTypes.SCREEN_WIDTH / bounds.Width;
                 float num2 = FrameworkTypes.SCREEN_HEIGHT / bounds.Height;
                 Rectangle value = new((int)(x / num), (int)(y / num2), (int)(width / num), (int)(height / num2));
-                Global.GraphicsDevice.ScissorRectangle = Rectangle.Intersect(value, bounds);
+                Rectangle scissor = Rectangle.Intersect(value, bounds);
+                Global.GraphicsDevice.ScissorRectangle = scissor;
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.SetScissor(scissor);
+                }
             }
             catch (Exception)
             {
@@ -659,6 +786,16 @@ namespace CutTheRope.Desktop
         private static Color s_Color = Color.White;
 
         private static BlendParams s_Blend = new();
+
+        private static bool s_blendEnabled;
+
+        private static bool s_blendIsDefault = true;
+
+        private static BlendingFactor s_blendSrc = BlendingFactor.GLSRCALPHA;
+
+        private static BlendingFactor s_blendDst = BlendingFactor.GLONEMINUSSRCALPHA;
+
+        private static BlendState s_blendStateSourceAlphaOne;
 
         private static RGBAColor[] s_GLColorPointer;
 

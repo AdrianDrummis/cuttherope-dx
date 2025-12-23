@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 
 using Microsoft.Xna.Framework;
@@ -75,11 +76,13 @@ namespace CutTheRope.Framework.Rendering
     /// <summary>
     /// General mesh draw command. Will be routed to vertex/index buffers in later phases.
     /// </summary>
-    internal readonly struct MeshDrawCommand(VertexPositionColorTexture[] vertices, short[]? indices, Material material, Matrix world, PrimitiveType primitiveType, int primitiveCount)
+    internal readonly struct MeshDrawCommand(VertexPositionColorTexture[] vertices, short[]? indices, Texture2D? texture, Material material, Matrix world, PrimitiveType primitiveType, int primitiveCount)
     {
         public VertexPositionColorTexture[] Vertices { get; } = vertices ?? throw new ArgumentNullException(nameof(vertices));
 
         public short[]? Indices { get; } = indices;
+
+        public Texture2D? Texture { get; } = texture;
 
         public Material Material { get; } = material ?? throw new ArgumentNullException(nameof(material));
 
