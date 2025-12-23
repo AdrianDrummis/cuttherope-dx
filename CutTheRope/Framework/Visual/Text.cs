@@ -242,7 +242,10 @@ namespace CutTheRope.Framework.Visual
                     if (imageMultiDrawer != null)
                     {
                         imageMultiDrawer.DrawAllQuads();
-                        imageMultiDrawer.Optimize(OpenGL.GetLastVertices_PositionNormalTexture());
+                        if (Global.Renderer == null)
+                        {
+                            imageMultiDrawer.Optimize(OpenGL.GetLastVertices_PositionNormalTexture());
+                        }
                     }
                     i++;
                 }
