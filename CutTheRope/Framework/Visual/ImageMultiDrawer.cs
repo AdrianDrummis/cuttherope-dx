@@ -1,5 +1,10 @@
-using CutTheRope.Desktop;
+using System;
 
+using CutTheRope.Desktop;
+using CutTheRope.Framework.Rendering;
+using CutTheRope.Framework.Rendering.Legacy;
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace CutTheRope.Framework.Visual
@@ -71,6 +76,10 @@ namespace CutTheRope.Framework.Visual
 
         private void DrawNumberOfQuads(int n)
         {
+            if (TryDrawTexturedQuadBatch(n))
+            {
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(image.texture.Name());
             OpenGL.GlVertexPointer(3, 5, 0, ToFloatArray(vertices));
@@ -93,6 +102,10 @@ namespace CutTheRope.Framework.Visual
                 DrawNumberOfQuads(totalQuads);
                 return;
             }
+            if (TryDrawOptimized())
+            {
+                return;
+            }
             OpenGL.GlEnable(0);
             OpenGL.GlBindTexture(image.texture.Name());
             OpenGL.Optimized_DrawTriangleList(verticesOptimized, indices);
@@ -112,6 +125,66 @@ namespace CutTheRope.Framework.Visual
             }
             OpenGL.GlTranslatef(0f - drawX, 0f - drawY, 0f);
             PostDraw();
+        }
+
+        private bool TryDrawTexturedQuadBatch(int quadCount)
+        {
+            if (Global.Renderer == null || image?.texture?.xnaTexture_ == null)
+            {
+                return false;
+            }
+            if (quadCount <= 0 || quadCount > totalQuads)
+            {
+                return false;
+            }
+            int vertexCount = quadCount * 4;
+            VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
+            int vertexIndex = 0;
+            for (int i = 0; i < quadCount; i++)
+            {
+                Quad3D quadVertices = vertices[i];
+                Quad2D quadTex = texCoordinates[i];
+                float[] pos = quadVertices.ToFloatArray();
+                float[] uv = quadTex.ToFloatArray();
+                Color color = OpenGL.GetCurrentColor();
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[0], pos[1], pos[2]), color, new Vector2(uv[0], uv[1]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[3], pos[4], pos[5]), color, new Vector2(uv[2], uv[3]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[6], pos[7], pos[8]), color, new Vector2(uv[4], uv[5]));
+                meshVertices[vertexIndex++] = new VertexPositionColorTexture(new Vector3(pos[9], pos[10], pos[11]), color, new Vector2(uv[6], uv[7]));
+            }
+            if (vertexIndex == 0)
+            {
+                return false;
+            }
+            if (vertexIndex != meshVertices.Length)
+            {
+                VertexPositionColorTexture[] trimmed = new VertexPositionColorTexture[vertexIndex];
+                Array.Copy(meshVertices, trimmed, vertexIndex);
+                meshVertices = trimmed;
+            }
+            int indexCount = quadCount * 6;
+            short[] drawIndices = indices;
+            if (indices.Length != indexCount)
+            {
+                drawIndices = new short[indexCount];
+                Array.Copy(indices, drawIndices, indexCount);
+            }
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: false, constantColor: OpenGL.GetCurrentColor());
+            MeshDrawCommand command = new(meshVertices, drawIndices, image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indexCount / 3);
+            Global.Renderer.DrawMesh(command);
+            return true;
+        }
+
+        private bool TryDrawOptimized()
+        {
+            if (Global.Renderer == null || verticesOptimized == null || image?.texture?.xnaTexture_ == null)
+            {
+                return false;
+            }
+            Material material = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: false, constantColor: OpenGL.GetCurrentColor());
+            MeshDrawCommand command = new(LegacyGlAdapter.Convert(verticesOptimized), indices, image.texture.xnaTexture_, material, OpenGL.GetModelViewMatrix(), PrimitiveType.TriangleList, indices.Length / 3);
+            Global.Renderer.DrawMesh(command);
+            return true;
         }
 
         private void ResizeCapacity(int n)

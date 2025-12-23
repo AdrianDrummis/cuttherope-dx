@@ -109,7 +109,7 @@ namespace CutTheRope.Framework.Rendering.Legacy
             Renderer.DrawMesh(command);
         }
 
-        private static VertexPositionColorTexture[] Convert(VertexPositionNormalTexture[] vertices)
+        public static VertexPositionColorTexture[] Convert(VertexPositionNormalTexture[] vertices)
         {
             VertexPositionColorTexture[] result = new VertexPositionColorTexture[vertices.Length];
             for (int i = 0; i < vertices.Length; i++)
