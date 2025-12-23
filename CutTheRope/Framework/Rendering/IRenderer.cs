@@ -10,6 +10,8 @@ namespace CutTheRope.Framework.Rendering
 
         void BeginFrame(in RenderFrameContext context);
 
+        void Clear(Color color);
+
         void DrawQuad(in QuadDrawCommand command);
 
         void DrawMesh(in MeshDrawCommand command);

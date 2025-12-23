@@ -92,6 +92,15 @@ namespace CutTheRope.Framework.Rendering
             ApplyMatrices(_effectColor, context);
         }
 
+        public void Clear(Color color)
+        {
+            if (_graphicsDevice == null)
+            {
+                throw new InvalidOperationException("Renderer must be initialized before Clear.");
+            }
+            _graphicsDevice.Clear(color);
+        }
+
         public void DrawQuad(in QuadDrawCommand command)
         {
             if (_graphicsDevice == null)
