@@ -23,8 +23,6 @@ namespace CutTheRope.Framework.Rendering
         /// <param name="context">Frame-scoped rendering context.</param>
         void BeginFrame(in RenderFrameContext context);
 
-        void Clear(Color color);
-
         /// <summary>
         /// Updates the view and projection matrices used by the renderer.
         /// </summary>

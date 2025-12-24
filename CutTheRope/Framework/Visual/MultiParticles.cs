@@ -170,18 +170,6 @@ namespace CutTheRope.Framework.Visual
                 quadRenderer.DrawTexturedQuads(drawer.image.texture.xnaTexture_, drawer.vertices, drawer.texCoordinates, useVertexColor ? colors : null, quadCount, batchMaterial, OpenGL.GetModelViewMatrix());
                 return true;
             }
-            int maxQuads = drawer.vertices.Length;
-            if (quadCount > maxQuads)
-            {
-                quadCount = maxQuads;
-            }
-            if (Global.Renderer is IQuadBatchRenderer quadRenderer)
-            {
-                Color batchColor = OpenGL.GetCurrentColor();
-                Material batchMaterial = OpenGL.GetMaterialForCurrentState(useTexture: true, useVertexColor: useVertexColor, constantColor: useVertexColor ? null : batchColor);
-                quadRenderer.DrawTexturedQuads(drawer.image.texture.xnaTexture_, drawer.vertices, drawer.texCoordinates, useVertexColor ? colors : null, quadCount, batchMaterial, OpenGL.GetModelViewMatrix());
-                return true;
-            }
             int vertexCount = quadCount * 4;
             VertexPositionColorTexture[] meshVertices = new VertexPositionColorTexture[vertexCount];
             Color currentColor = OpenGL.GetCurrentColor();

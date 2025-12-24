@@ -94,27 +94,6 @@ namespace CutTheRope.Framework.Rendering.Legacy
             Renderer.DrawMesh(command);
         }
 
-        public static void DrawTexturedColored(Texture2D texture, VertexPositionColorTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
-        {
-            if (Renderer == null || vertices.Length == 0)
-            {
-                return;
-            }
-            int indexCount = indices?.Length ?? 0;
-            MeshDrawCommand command = new(
-                vertices,
-                indices,
-                texture,
-                material ?? MaterialPresets.TexturedVertexColorAlphaBlend,
-                world,
-                primitiveType,
-                GetPrimitiveCount(primitiveType, vertices.Length, indexCount),
-                vertices.Length,
-                indexCount
-            );
-            Renderer.DrawMesh(command);
-        }
-
         public static void DrawColored(VertexPositionColor[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleStrip)
         {
             if (Renderer == null || vertices.Length == 0)
