@@ -114,6 +114,11 @@ namespace CutTheRope.Desktop
         {
             if (s_glMatrixMode == 14)
             {
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.LoadIdentity();
+                    return;
+                }
                 s_matrixModelView = Matrix.Identity;
                 return;
             }
@@ -148,6 +153,11 @@ namespace CutTheRope.Desktop
 
         public static void GlPopMatrix()
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.PopMatrix();
+                return;
+            }
             if (s_matrixModelViewStack.Count > 0)
             {
                 int index = s_matrixModelViewStack.Count - 1;
@@ -158,6 +168,11 @@ namespace CutTheRope.Desktop
 
         public static void GlPushMatrix()
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.PushMatrix();
+                return;
+            }
             s_matrixModelViewStack.Add(s_matrixModelView);
         }
 
@@ -168,6 +183,11 @@ namespace CutTheRope.Desktop
 
         public static void GlScalef(float x, float y, float z)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.Scale(x, y, z);
+                return;
+            }
             s_matrixModelView = Matrix.CreateScale(x, y, z) * s_matrixModelView;
         }
 
@@ -178,6 +198,11 @@ namespace CutTheRope.Desktop
 
         public static void GlRotatef(float angle, float x, float y, float z)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.Rotate(angle, x, y, z);
+                return;
+            }
             s_matrixModelView = Matrix.CreateRotationZ(MathHelper.ToRadians(angle)) * s_matrixModelView;
         }
 
@@ -188,6 +213,11 @@ namespace CutTheRope.Desktop
 
         public static void GlTranslatef(float x, float y, float z)
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.Translate(x, y, z);
+                return;
+            }
             s_matrixModelView = Matrix.CreateTranslation(x, y, 0f) * s_matrixModelView;
         }
 
@@ -529,7 +559,7 @@ namespace CutTheRope.Desktop
             if (LegacyGlAdapter.IsAttached)
             {
                 Material material = CreateMaterial(useTexture: false, useVertexColor: true, constantColor: null);
-                LegacyGlAdapter.DrawColored(vertices, null, s_matrixModelView, material, PrimitiveType.TriangleStrip);
+                LegacyGlAdapter.DrawColored(vertices, null, GetModelViewMatrix(), material, PrimitiveType.TriangleStrip);
                 return;
             }
             BasicEffect effect = GetEffect(false, true);
@@ -551,7 +581,7 @@ namespace CutTheRope.Desktop
                 _ = s_glClientStateFlags.TryGetValue(13, out bool hasColorPointer);
                 VertexPositionColor[] legacyVertices = s_LastVertices_PositionColor = hasColorPointer ? ConstructColorVertices() : ConstructCurrentColorVertices();
                 Material material = CreateMaterial(useTexture: false, useVertexColor: true, constantColor: null);
-                LegacyGlAdapter.DrawColored(legacyVertices, null, s_matrixModelView, material, PrimitiveType.TriangleStrip);
+                LegacyGlAdapter.DrawColored(legacyVertices, null, GetModelViewMatrix(), material, PrimitiveType.TriangleStrip);
                 return;
             }
             BasicEffect effect = GetEffect(false, true);
@@ -579,7 +609,7 @@ namespace CutTheRope.Desktop
                 }
                 VertexPositionNormalTexture[] legacyVertices = ConstructTexturedVertices();
                 Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
-                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, legacyVertices, null, s_matrixModelView, material, PrimitiveType.TriangleStrip);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, legacyVertices, null, GetModelViewMatrix(), material, PrimitiveType.TriangleStrip);
                 return;
             }
             BasicEffect effect = GetEffect(true, false);
@@ -605,6 +635,10 @@ namespace CutTheRope.Desktop
         /// </summary>
         public static Matrix GetModelViewMatrix()
         {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                return LegacyGlAdapter.CurrentTransform;
+            }
             return s_matrixModelView;
         }
 
@@ -630,7 +664,7 @@ namespace CutTheRope.Desktop
                     return;
                 }
                 Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
-                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, vertices, indices, s_matrixModelView, material, PrimitiveType.TriangleList);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, vertices, indices, GetModelViewMatrix(), material, PrimitiveType.TriangleList);
                 return;
             }
             BasicEffect effect = GetEffect(true, false);
@@ -661,7 +695,7 @@ namespace CutTheRope.Desktop
                 }
                 VertexPositionNormalTexture[] legacyVertices = s_LastVertices_PositionNormalTexture = ConstructTexturedVertices();
                 Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
-                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, legacyVertices, indices, s_matrixModelView, material, PrimitiveType.TriangleList);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, legacyVertices, indices, GetModelViewMatrix(), material, PrimitiveType.TriangleList);
                 return;
             }
             BasicEffect effect = GetEffect(true, false);
@@ -693,7 +727,7 @@ namespace CutTheRope.Desktop
                 int vertexCount = count / 3 * 2;
                 VertexPositionColorTexture[] legacyVertexData = ConstructTexturedColoredVertices(vertexCount);
                 Material material = CreateMaterial(useTexture: true, useVertexColor: true, constantColor: null);
-                LegacyGlAdapter.DrawTexturedColored(s_Texture.xnaTexture_, legacyVertexData, indices, s_matrixModelView, material, PrimitiveType.TriangleList);
+                LegacyGlAdapter.DrawTexturedColored(s_Texture.xnaTexture_, legacyVertexData, indices, GetModelViewMatrix(), material, PrimitiveType.TriangleList);
                 return;
             }
             BasicEffect effect = GetEffect(true, true);

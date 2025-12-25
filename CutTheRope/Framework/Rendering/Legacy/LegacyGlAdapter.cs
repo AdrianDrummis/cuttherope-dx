@@ -12,9 +12,16 @@ namespace CutTheRope.Framework.Rendering.Legacy
     /// </summary>
     internal static class LegacyGlAdapter
     {
+        private static readonly TransformStack _transformStack = new();
+
         public static IRenderer? Renderer { get; private set; }
 
         public static bool IsAttached => Renderer != null;
+
+        /// <summary>
+        /// Gets the current model-view transformation matrix from the transform stack.
+        /// </summary>
+        public static Matrix CurrentTransform => _transformStack.Current;
 
         public static void Attach(IRenderer renderer)
         {
@@ -49,6 +56,54 @@ namespace CutTheRope.Framework.Rendering.Legacy
         public static void EndFrame()
         {
             Renderer?.EndFrame();
+        }
+
+        /// <summary>
+        /// Pushes the current transformation matrix onto the stack.
+        /// </summary>
+        public static void PushMatrix()
+        {
+            _transformStack.Push();
+        }
+
+        /// <summary>
+        /// Pops the top transformation matrix from the stack.
+        /// </summary>
+        public static void PopMatrix()
+        {
+            _transformStack.Pop();
+        }
+
+        /// <summary>
+        /// Resets the current transformation to identity.
+        /// </summary>
+        public static void LoadIdentity()
+        {
+            _transformStack.LoadIdentity();
+        }
+
+        /// <summary>
+        /// Applies a translation to the current transformation.
+        /// </summary>
+        public static void Translate(float x, float y, float z = 0f)
+        {
+            _transformStack.Translate(x, y, z);
+        }
+
+        /// <summary>
+        /// Applies a rotation (in degrees) around the Z axis.
+        /// </summary>
+        public static void Rotate(float angleInDegrees, float x = 0f, float y = 0f, float z = 1f)
+        {
+            _transformStack.Rotate(angleInDegrees, x, y, z);
+        }
+
+        /// <summary>
+        /// Applies a scale to the current transformation.
+        /// </summary>
+        public static void Scale(float x, float y, float z = 1f)
+        {
+            _transformStack.Scale(x, y, z);
         }
 
         public static void DrawTextured(Texture2D texture, VertexPositionNormalTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
