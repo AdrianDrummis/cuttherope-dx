@@ -650,6 +650,30 @@ namespace CutTheRope.Desktop
             return s_Color;
         }
 
+        /// <summary>
+        /// Returns the current projection matrix.
+        /// </summary>
+        public static Matrix GetProjectionMatrix()
+        {
+            return s_matrixProjection;
+        }
+
+        /// <summary>
+        /// Returns the current viewport.
+        /// </summary>
+        public static Viewport GetViewport()
+        {
+            return s_Viewport;
+        }
+
+        /// <summary>
+        /// Returns the current render target.
+        /// </summary>
+        public static RenderTarget2D GetRenderTarget()
+        {
+            return s_RenderTarget;
+        }
+
         public static Material GetMaterialForCurrentState(bool useTexture, bool useVertexColor, Color? constantColor)
         {
             return CreateMaterial(useTexture, useVertexColor, constantColor);

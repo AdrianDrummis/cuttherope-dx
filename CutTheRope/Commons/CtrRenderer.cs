@@ -249,7 +249,31 @@ namespace CutTheRope.Commons
             OpenGL.GlClear(0);
             if (gApp != null)
             {
+                BeginRendererFrame();
                 Application.SharedRootController().PerformDraw();
+                EndRendererFrame();
+            }
+        }
+
+        private static void BeginRendererFrame()
+        {
+            if (Framework.Rendering.Legacy.LegacyGlAdapter.IsAttached)
+            {
+                Framework.Rendering.Legacy.LegacyGlAdapter.BeginFrame(
+                    Matrix.Identity,
+                    OpenGL.GetProjectionMatrix(),
+                    OpenGL.GetRenderTarget(),
+                    OpenGL.GetViewport(),
+                    null
+                );
+            }
+        }
+
+        private static void EndRendererFrame()
+        {
+            if (Framework.Rendering.Legacy.LegacyGlAdapter.IsAttached)
+            {
+                Framework.Rendering.Legacy.LegacyGlAdapter.EndFrame();
             }
         }
 
