@@ -27,6 +27,14 @@ namespace CutTheRope.Desktop
             {
                 s_Blend.Enable();
                 s_blendEnabled = true;
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.SetBlendingEnabled(true);
+                }
+            }
+            if (cap == 0 && LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.SetTexturingEnabled(true);
             }
             s_glServerSideFlags[cap] = true;
         }
@@ -41,6 +49,14 @@ namespace CutTheRope.Desktop
             {
                 s_Blend.Disable();
                 s_blendEnabled = false;
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.SetBlendingEnabled(false);
+                }
+            }
+            if (cap == 0 && LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.SetTexturingEnabled(false);
             }
             s_glServerSideFlags[cap] = false;
         }
@@ -251,6 +267,10 @@ namespace CutTheRope.Desktop
         public static void GlColor4f(Color c)
         {
             s_Color = c;
+            if (LegacyGlAdapter.IsAttached)
+            {
+                LegacyGlAdapter.SetColor(c);
+            }
         }
 
         public static void GlBlendFunc(BlendingFactor sfactor, BlendingFactor dfactor)
@@ -259,6 +279,42 @@ namespace CutTheRope.Desktop
             s_blendSrc = sfactor;
             s_blendDst = dfactor;
             s_blendIsDefault = false;
+            if (LegacyGlAdapter.IsAttached)
+            {
+                BlendState blendState = ConvertToBlendState(sfactor, dfactor);
+                LegacyGlAdapter.SetBlendFunc(blendState);
+            }
+        }
+
+        private static BlendState ConvertToBlendState(BlendingFactor sfactor, BlendingFactor dfactor)
+        {
+            if (sfactor == BlendingFactor.GLSRCALPHA && dfactor == BlendingFactor.GLONEMINUSSRCALPHA)
+            {
+                return BlendState.AlphaBlend;
+            }
+            if (sfactor == BlendingFactor.GLONE && dfactor == BlendingFactor.GLONEMINUSSRCALPHA)
+            {
+                BlendState state = new()
+                {
+                    AlphaSourceBlend = Blend.One,
+                    ColorSourceBlend = Blend.One,
+                    AlphaDestinationBlend = Blend.InverseSourceAlpha,
+                    ColorDestinationBlend = Blend.InverseSourceAlpha
+                };
+                return state;
+            }
+            if (sfactor == BlendingFactor.GLSRCALPHA && dfactor == BlendingFactor.GLONE)
+            {
+                BlendState state = new()
+                {
+                    AlphaSourceBlend = Blend.SourceAlpha,
+                    ColorSourceBlend = Blend.SourceAlpha,
+                    AlphaDestinationBlend = Blend.One,
+                    ColorDestinationBlend = Blend.One
+                };
+                return state;
+            }
+            return BlendState.AlphaBlend;
         }
 
         public static void DrawSegment(float x1, float y1, float x2, float y2, RGBAColor color)

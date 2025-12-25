@@ -13,6 +13,10 @@ namespace CutTheRope.Framework.Rendering.Legacy
     internal static class LegacyGlAdapter
     {
         private static readonly TransformStack _transformStack = new();
+        private static Color _currentColor = Color.White;
+        private static BlendState? _currentBlendState = BlendState.AlphaBlend;
+        private static bool _texturingEnabled = false;
+        private static bool _blendingEnabled = false;
 
         public static IRenderer? Renderer { get; private set; }
 
@@ -22,6 +26,26 @@ namespace CutTheRope.Framework.Rendering.Legacy
         /// Gets the current model-view transformation matrix from the transform stack.
         /// </summary>
         public static Matrix CurrentTransform => _transformStack.Current;
+
+        /// <summary>
+        /// Gets the current color state.
+        /// </summary>
+        public static Color CurrentColor => _currentColor;
+
+        /// <summary>
+        /// Gets the current blend state.
+        /// </summary>
+        public static BlendState? CurrentBlendState => _currentBlendState;
+
+        /// <summary>
+        /// Gets whether texturing is enabled.
+        /// </summary>
+        public static bool IsTexturingEnabled => _texturingEnabled;
+
+        /// <summary>
+        /// Gets whether blending is enabled.
+        /// </summary>
+        public static bool IsBlendingEnabled => _blendingEnabled;
 
         public static void Attach(IRenderer renderer)
         {
@@ -104,6 +128,38 @@ namespace CutTheRope.Framework.Rendering.Legacy
         public static void Scale(float x, float y, float z = 1f)
         {
             _transformStack.Scale(x, y, z);
+        }
+
+        /// <summary>
+        /// Sets the current color state.
+        /// </summary>
+        public static void SetColor(Color color)
+        {
+            _currentColor = color;
+        }
+
+        /// <summary>
+        /// Sets the blend state from OpenGL blend factors.
+        /// </summary>
+        public static void SetBlendFunc(BlendState blendState)
+        {
+            _currentBlendState = blendState;
+        }
+
+        /// <summary>
+        /// Enables or disables texturing.
+        /// </summary>
+        public static void SetTexturingEnabled(bool enabled)
+        {
+            _texturingEnabled = enabled;
+        }
+
+        /// <summary>
+        /// Enables or disables blending.
+        /// </summary>
+        public static void SetBlendingEnabled(bool enabled)
+        {
+            _blendingEnabled = enabled;
         }
 
         public static void DrawTextured(Texture2D texture, VertexPositionNormalTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
