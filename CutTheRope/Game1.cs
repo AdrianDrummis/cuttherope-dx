@@ -26,6 +26,7 @@ namespace CutTheRope
             Global.XnaGame = this;
             Content.RootDirectory = ContentPaths.RootDirectory;
             Global.GraphicsDeviceManager = new GraphicsDeviceManager(this);
+            Global.GraphicsDeviceManager.PreferMultiSampling = true;
             try
             {
                 Global.GraphicsDeviceManager.GraphicsProfile = GraphicsProfile.HiDef;
@@ -56,6 +57,7 @@ namespace CutTheRope
         private void GraphicsDeviceManager_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             e.GraphicsDeviceInformation.PresentationParameters.DepthStencilFormat = DepthFormat.None;
+            e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8;
             if (e.GraphicsDeviceInformation.Adapter.CurrentDisplayMode.Width > ScreenSizeManager.MAX_WINDOW_WIDTH || e.GraphicsDeviceInformation.Adapter.CurrentDisplayMode.Height > ScreenSizeManager.MAX_WINDOW_WIDTH)
             {
                 UseWindowMode_TODO_ChangeFullScreenResolution = true;

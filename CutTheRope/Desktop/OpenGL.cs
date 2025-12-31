@@ -82,11 +82,19 @@ namespace CutTheRope.Desktop
             s_Viewport.Height = height;
             if (Global.ScreenSizeManager.IsFullScreen)
             {
-                if (s_RenderTarget == null || s_RenderTarget.Bounds.Width != s_Viewport.Bounds.Width || s_RenderTarget.Bounds.Height != s_Viewport.Bounds.Height)
+                // Apply Retina scale factor for higher resolution rendering
+                float scaleFactor = ScreenSizeManager.GetRetinaScaleFactor();
+                int scaledWidth = (int)(s_Viewport.Width * scaleFactor);
+                int scaledHeight = (int)(s_Viewport.Height * scaleFactor);
+
+                if (s_RenderTarget == null || s_RenderTarget.Bounds.Width != scaledWidth || s_RenderTarget.Bounds.Height != scaledHeight)
                 {
-                    s_RenderTarget = new RenderTarget2D(Global.GraphicsDevice, s_Viewport.Width, s_Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None);
+                    int multiSampleCount = Global.GraphicsDevice.PresentationParameters.MultiSampleCount;
+                    s_RenderTarget = new RenderTarget2D(Global.GraphicsDevice, scaledWidth, scaledHeight, false, SurfaceFormat.Color, DepthFormat.None, multiSampleCount, RenderTargetUsage.PreserveContents);
                 }
                 Global.GraphicsDevice.SetRenderTarget(s_RenderTarget);
+                // Set viewport to match the scaled RenderTarget dimensions
+                Global.GraphicsDevice.Viewport = new Viewport(0, 0, scaledWidth, scaledHeight);
                 Global.GraphicsDevice.Clear(Color.Black);
                 return;
             }

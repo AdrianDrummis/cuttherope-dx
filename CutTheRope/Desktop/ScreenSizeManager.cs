@@ -9,6 +9,7 @@ namespace CutTheRope.Desktop
 {
     internal sealed class ScreenSizeManager(int gameWidth, int gameHeight)
     {
+        private static readonly float _scaleFactor = RetinaHelper.GetScaleFactor();
         // (get) Token: 0x060000AF RID: 175 RVA: 0x00004B78 File Offset: 0x00002D78
         public static int MAX_WINDOW_WIDTH => Global.GraphicsDeviceManager.GraphicsProfile == GraphicsProfile.HiDef ? 4096 : 2048;
 
@@ -250,6 +251,11 @@ namespace CutTheRope.Desktop
         {
             FullScreenRectChanged(new Rectangle(0, 0, d.Width, d.Height));
         }
+
+        /// <summary>
+        /// Gets the Retina/HiDPI scale factor for the current display.
+        /// </summary>
+        public static float GetRetinaScaleFactor() => _scaleFactor;
 
         private void FullScreenRectChanged(Rectangle r)
         {

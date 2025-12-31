@@ -2,12 +2,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{9A732C70-39B7-456E-8029-91F641C29567}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType Condition="'$(TargetFramework)' == 'net9.0-windows'">WinExe</OutputType>
+    <OutputType Condition="'$(TargetFramework)' == 'net9.0'">Exe</OutputType>
     <RootNamespace>CutTheRope</RootNamespace>
     <AssemblyName>CutTheRope-DX</AssemblyName>
-    <TargetFramework>net9.0-windows</TargetFramework>
+
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    net9.0-windows;net9.0
+    </TargetFrameworks>
+
+    <TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+      net9.0
+    </TargetFrameworks>
+
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationManifest Condition="'$(TargetFramework)' == 'net9.0-windows'">app.manifest</ApplicationManifest>
     <ApplicationIcon>CutTheRope.ico</ApplicationIcon>
     <AssemblyVersion>2.4.3.0</AssemblyVersion>
     <FileVersion>2.4.3.0</FileVersion>
@@ -24,9 +33,25 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.2" />
-    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.4.1" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.4.1" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.4.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.4.1" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
+    <DefineConstants>$(DefineConstants);MONOGAME_WINDOWS;WINDOWS_DX</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <DefineConstants>$(DefineConstants);MONOGAME_DESKTOPGL</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Microsoft.Xna.Framework.RuntimeProfile" />
   </ItemGroup>
