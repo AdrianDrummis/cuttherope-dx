@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,9 +7,11 @@ using CutTheRope.Desktop;
 using CutTheRope.Framework;
 using CutTheRope.Framework.Core;
 using CutTheRope.Framework.Helpers;
+using CutTheRope.Framework.Rendering;
 using CutTheRope.Framework.Visual;
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace CutTheRope.GameMain
 {
@@ -295,11 +298,53 @@ namespace CutTheRope.GameMain
                             array3[num4++] = vector6.y;
                             num3 += num10;
                         }
-                        OpenGL.GlColor4f(Color.White);
-                        OpenGL.GlVertexPointer(2, 5, 0, array3);
-                        OpenGL.GlDrawArrays(8, 0, num4 / 2);
+                        TryDrawCutTrail(array3, num4);
                     }
                 }
+            }
+        }
+
+        private static bool TryDrawCutTrail(float[] positions, int floatCount)
+        {
+            if (Global.Renderer == null)
+            {
+                return false;
+            }
+
+            int vertexCount = floatCount / 2;
+            if (vertexCount < 3)
+            {
+                return false;
+            }
+
+            VertexPositionColorTexture[] vertices = ArrayPool<VertexPositionColorTexture>.Shared.Rent(vertexCount);
+            try
+            {
+                for (int i = 0; i < vertexCount; i++)
+                {
+                    vertices[i] = new VertexPositionColorTexture(
+                        new Vector3(positions[i * 2], positions[(i * 2) + 1], 0f),
+                        Color.White,
+                        Vector2.Zero);
+                }
+
+                int primitiveCount = vertexCount - 2;
+                MeshDrawCommand command = new(
+                    vertices,
+                    indices: null,
+                    texture: null,
+                    MaterialPresets.SolidColorAlphaBlend,
+                    OpenGL.GetModelViewMatrix(),
+                    PrimitiveType.TriangleStrip,
+                    primitiveCount,
+                    vertexCount,
+                    indexCount: 0);
+                Global.Renderer.DrawMesh(command);
+                return true;
+            }
+            finally
+            {
+                ArrayPool<VertexPositionColorTexture>.Shared.Return(vertices);
             }
         }
     }
