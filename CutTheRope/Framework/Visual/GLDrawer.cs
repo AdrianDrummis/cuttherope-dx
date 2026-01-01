@@ -249,17 +249,7 @@ namespace CutTheRope.Framework.Visual
             array[((vertexCount - 1) * 12) + 2] = array2[(vertexCount * 2) - 2];
             array[((vertexCount - 1) * 12) + 3] = array2[(vertexCount * 2) - 1];
             array6[((vertexCount - 1) * 6) + 1] = RGBAColor.transparentRGBA;
-            if (TryDrawTriangleStrip(array, array6))
-            {
-                return;
-            }
-            OpenGL.GlColorPointer(4, 5, 0, array6);
-            OpenGL.GlDisableClientState(0);
-            OpenGL.GlEnableClientState(13);
-            OpenGL.GlVertexPointer(2, 5, 0, array);
-            OpenGL.GlDrawArrays(8, 0, ((vertexCount - 1) * 6) + 2);
-            OpenGL.GlEnableClientState(0);
-            OpenGL.GlDisableClientState(13);
+            TryDrawTriangleStrip(array, array6);
         }
 
         private static void CalcCurve(float cx, float cy, float radius, float startAngle, float endAngle, int vertexCount, float[] glVertices)
@@ -356,48 +346,23 @@ namespace CutTheRope.Framework.Visual
                 x + w,
                 y + h
             ];
-            if (TryDrawTriangleStrip(pointer, 4, fill))
-            {
-                return;
-            }
-            OpenGL.GlColor4f(fill.ToXNA());
-            OpenGL.GlVertexPointer(2, 5, 0, pointer);
-            OpenGL.GlDrawArrays(8, 0, 4);
+            TryDrawTriangleStrip(pointer, 4, fill);
         }
 
         public static void DrawPolygon(float[] vertices, int vertexCount, RGBAColor color)
         {
-            if (TryDrawLineStrip(vertices, vertexCount, color))
-            {
-                return;
-            }
-            OpenGL.GlColor4f(color.ToXNA());
-            OpenGL.GlVertexPointer(2, 5, 0, vertices);
-            OpenGL.GlDrawArrays(9, 0, vertexCount);
+            TryDrawLineStrip(vertices, vertexCount, color);
         }
 
         public static void DrawSolidPolygon(float[] vertices, int vertexCount, RGBAColor border, RGBAColor fill)
         {
-            if (TryDrawTriangleStrip(vertices, vertexCount, fill))
-            {
-                return;
-            }
-            OpenGL.GlVertexPointer(2, 5, 0, vertices);
-            OpenGL.GlColor4f(fill.ToXNA());
-            OpenGL.GlDrawArrays(8, 0, vertexCount);
-            OpenGL.GlColor4f(border.ToXNA());
-            OpenGL.GlDrawArrays(9, 0, vertexCount);
+            TryDrawTriangleStrip(vertices, vertexCount, fill);
+            TryDrawLineStrip(vertices, vertexCount, border);
         }
 
         public static void DrawSolidPolygonWOBorder(float[] vertices, int vertexCount, RGBAColor fill)
         {
-            if (TryDrawTriangleStrip(vertices, vertexCount, fill))
-            {
-                return;
-            }
-            OpenGL.GlVertexPointer(2, 5, 0, vertices);
-            OpenGL.GlColor4f(fill.ToXNA());
-            OpenGL.GlDrawArrays(8, 0, vertexCount);
+            TryDrawTriangleStrip(vertices, vertexCount, fill);
         }
 
         private static bool TryDrawTriangleStrip(float[] vertices, int vertexCount, RGBAColor color)
