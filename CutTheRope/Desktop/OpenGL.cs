@@ -555,7 +555,7 @@ namespace CutTheRope.Desktop
             }
             if (s_blendSrc == BlendingFactor.GLSRCALPHA && s_blendDst == BlendingFactor.GLONEMINUSSRCALPHA)
             {
-                return BlendState.AlphaBlend;
+                return BlendState.NonPremultiplied;
             }
             if (s_blendSrc == BlendingFactor.GLONE && s_blendDst == BlendingFactor.GLONEMINUSSRCALPHA)
             {
