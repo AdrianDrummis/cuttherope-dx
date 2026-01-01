@@ -162,15 +162,6 @@ namespace CutTheRope.Framework.Rendering.Legacy
             _blendingEnabled = enabled;
         }
 
-        /// <summary>
-        /// Creates a Material based on the current adapter state.
-        /// </summary>
-        public static Material GetCurrentMaterial(bool useTexture, bool useVertexColor, Color? constantColor)
-        {
-            BlendState blend = _blendingEnabled ? (_currentBlendState ?? BlendState.AlphaBlend) : BlendState.Opaque;
-            return new Material(blend, SamplerState.LinearClamp, effect: null, constantColor: constantColor, useVertexColor: useVertexColor, useTexture: useTexture);
-        }
-
         public static void DrawTextured(Texture2D texture, VertexPositionNormalTexture[] vertices, short[]? indices, Matrix world, Material? material = null, PrimitiveType primitiveType = PrimitiveType.TriangleList)
         {
             if (Renderer == null || vertices.Length == 0)

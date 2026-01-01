@@ -617,6 +617,26 @@ namespace CutTheRope.Desktop
             return s_LastVertices_PositionColor;
         }
 
+        public static void Optimized_DrawTriangleStripColored(VertexPositionColor[] vertices)
+        {
+            if (LegacyGlAdapter.IsAttached)
+            {
+                Material material = CreateMaterial(useTexture: false, useVertexColor: true, constantColor: null);
+                LegacyGlAdapter.DrawColored(vertices, null, GetModelViewMatrix(), material, PrimitiveType.TriangleStrip);
+                return;
+            }
+            BasicEffect effect = GetEffect(false, true);
+            if (effect.Alpha == 0f)
+            {
+                return;
+            }
+            foreach (EffectPass effectPass in effect.CurrentTechnique.Passes)
+            {
+                effectPass.Apply();
+                Global.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, vertices, 0, vertices.Length - 2);
+            }
+        }
+
         private static void DrawTriangleStripColored(int first, int count)
         {
             if (LegacyGlAdapter.IsAttached)
@@ -690,10 +710,6 @@ namespace CutTheRope.Desktop
         /// </summary>
         public static Color GetCurrentColor()
         {
-            if (LegacyGlAdapter.IsAttached)
-            {
-                return LegacyGlAdapter.CurrentColor;
-            }
             return s_Color;
         }
 
@@ -723,11 +739,31 @@ namespace CutTheRope.Desktop
 
         public static Material GetMaterialForCurrentState(bool useTexture, bool useVertexColor, Color? constantColor)
         {
+            return CreateMaterial(useTexture, useVertexColor, constantColor);
+        }
+
+        public static void Optimized_DrawTriangleList(VertexPositionNormalTexture[] vertices, short[] indices)
+        {
             if (LegacyGlAdapter.IsAttached)
             {
-                return LegacyGlAdapter.GetCurrentMaterial(useTexture, useVertexColor, constantColor);
+                if (s_Texture == null)
+                {
+                    return;
+                }
+                Material material = CreateMaterial(useTexture: true, useVertexColor: false, constantColor: s_Color);
+                LegacyGlAdapter.DrawTextured(s_Texture.xnaTexture_, vertices, indices, GetModelViewMatrix(), material, PrimitiveType.TriangleList);
+                return;
             }
-            return CreateMaterial(useTexture, useVertexColor, constantColor);
+            BasicEffect effect = GetEffect(true, false);
+            if (effect.Alpha == 0f)
+            {
+                return;
+            }
+            foreach (EffectPass effectPass in effect.CurrentTechnique.Passes)
+            {
+                effectPass.Apply();
+                Global.GraphicsDevice.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, indices.Length / 3);
+            }
         }
 
         private static void DrawTriangleList(int first, int count, short[] indices)
