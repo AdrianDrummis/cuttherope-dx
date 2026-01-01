@@ -249,13 +249,14 @@ namespace CutTheRope.Framework.Rendering.Legacy
 
         private static int GetPrimitiveCount(PrimitiveType type, int vertexCount, int indexCount)
         {
+            int count = indexCount > 0 ? indexCount : vertexCount;
             return type switch
             {
-                PrimitiveType.TriangleStrip => (indexCount > 0 ? indexCount : vertexCount) - 2,
-                PrimitiveType.TriangleList => (indexCount > 0 ? indexCount : vertexCount) / 3,
-                PrimitiveType.LineList => throw new NotImplementedException(),
-                PrimitiveType.LineStrip => throw new NotImplementedException(),
-                PrimitiveType.PointList => throw new NotImplementedException(),
+                PrimitiveType.TriangleStrip => count - 2,
+                PrimitiveType.TriangleList => count / 3,
+                PrimitiveType.LineList => count / 2,
+                PrimitiveType.LineStrip => count - 1,
+                PrimitiveType.PointList => count,
                 _ => 0
             };
         }

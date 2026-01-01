@@ -43,7 +43,14 @@ namespace CutTheRope.Desktop
         {
             if (cap == 4)
             {
-                GlScissor(0.0, 0.0, FrameworkTypes.SCREEN_WIDTH, FrameworkTypes.SCREEN_HEIGHT);
+                if (LegacyGlAdapter.IsAttached)
+                {
+                    LegacyGlAdapter.SetScissor(null);
+                }
+                else
+                {
+                    GlScissor(0.0, 0.0, FrameworkTypes.SCREEN_WIDTH, FrameworkTypes.SCREEN_HEIGHT);
+                }
             }
             if (cap == 1)
             {
@@ -548,7 +555,7 @@ namespace CutTheRope.Desktop
             }
             if (s_blendSrc == BlendingFactor.GLSRCALPHA && s_blendDst == BlendingFactor.GLONEMINUSSRCALPHA)
             {
-                return BlendState.NonPremultiplied;
+                return BlendState.AlphaBlend;
             }
             if (s_blendSrc == BlendingFactor.GLONE && s_blendDst == BlendingFactor.GLONEMINUSSRCALPHA)
             {
