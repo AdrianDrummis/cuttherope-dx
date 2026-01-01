@@ -38,7 +38,15 @@ namespace CutTheRope.Framework.Visual
                 rect.w + point.x,
                 rect.h + point.y
             ];
-            TryDrawTexturedQuad(t, positions2D, pointer);
+            if (TryDrawTexturedQuad(t, positions2D, pointer))
+            {
+                return;
+            }
+            OpenGL.GlEnable(0);
+            OpenGL.GlBindTexture(t.Name());
+            OpenGL.GlVertexPointer(3, 5, 0, pointer2);
+            OpenGL.GlTexCoordPointer(2, 5, 0, pointer);
+            OpenGL.GlDrawArrays(8, 0, 4);
         }
 
         public CTRTexture2D Name()
@@ -103,7 +111,15 @@ namespace CutTheRope.Framework.Visual
                 t.quadRects[q].h + point.y
             ];
             float[] texCoords = quad2D.ToFloatArray();
-            TryDrawTexturedQuad(t, positions2D, texCoords);
+            if (TryDrawTexturedQuad(t, positions2D, texCoords))
+            {
+                return;
+            }
+            OpenGL.GlEnable(0);
+            OpenGL.GlBindTexture(t.Name());
+            OpenGL.GlVertexPointer(3, 5, 0, pointer);
+            OpenGL.GlTexCoordPointer(2, 5, 0, texCoords);
+            OpenGL.GlDrawArrays(8, 0, 4);
         }
 
         public static void DrawAtPoint(CTRTexture2D t, Vector point)
@@ -130,7 +146,15 @@ namespace CutTheRope.Framework.Visual
                 t._realWidth + point.x,
                 t._realHeight + point.y
             ];
-            TryDrawTexturedQuad(t, positions2D, pointer);
+            if (TryDrawTexturedQuad(t, positions2D, pointer))
+            {
+                return;
+            }
+            OpenGL.GlEnable(0);
+            OpenGL.GlBindTexture(t.Name());
+            OpenGL.GlVertexPointer(3, 5, 0, pointer2);
+            OpenGL.GlTexCoordPointer(2, 5, 0, pointer);
+            OpenGL.GlDrawArrays(8, 0, 4);
         }
 
         internal static bool TryDrawTexturedQuad(CTRTexture2D texture, float[] positions, float[] texCoords)

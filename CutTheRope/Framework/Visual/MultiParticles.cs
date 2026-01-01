@@ -129,7 +129,22 @@ namespace CutTheRope.Framework.Visual
             {
                 OpenGL.GlBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
             }
-            TryDrawTexturedParticles(particleIdx, useVertexColor: true);
+            if (TryDrawTexturedParticles(particleIdx, useVertexColor: true))
+            {
+                PostDraw();
+                return;
+            }
+            OpenGL.GlEnable(0);
+            OpenGL.GlBindTexture(drawer.image.texture.Name());
+            OpenGL.GlVertexPointer(3, 5, 0, ToFloatArray(drawer.vertices));
+            OpenGL.GlTexCoordPointer(2, 5, 0, ToFloatArray(drawer.texCoordinates));
+            OpenGL.GlEnableClientState(13);
+            OpenGL.GlBindBuffer(2, colorsID);
+            OpenGL.GlColorPointer(4, 5, 0, colors);
+            OpenGL.GlDrawElements(7, particleIdx * 6, drawer.indices);
+            OpenGL.GlBlendFunc(BlendingFactor.GLONE, BlendingFactor.GLONEMINUSSRCALPHA);
+            OpenGL.GlBindBuffer(2, 0U);
+            OpenGL.GlDisableClientState(13);
             PostDraw();
         }
 
