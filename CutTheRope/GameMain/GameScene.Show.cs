@@ -7,6 +7,7 @@ using CutTheRope.Framework.Core;
 using CutTheRope.Framework.Helpers;
 using CutTheRope.Framework.Sfe;
 using CutTheRope.Framework.Visual;
+using CutTheRope.Helpers;
 
 namespace CutTheRope.GameMain
 {
@@ -21,6 +22,8 @@ namespace CutTheRope.GameMain
 
             CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
             XElement map = cTRRootController.GetMap();
+            
+            Game1.RPC?.SetLevelPresence(cTRRootController.GetPack(), cTRRootController.GetLevel());
 
             float num = 3f;
             float num2 = 0f;
