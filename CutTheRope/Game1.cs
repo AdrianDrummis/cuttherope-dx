@@ -12,6 +12,8 @@ using CutTheRope.Framework.Core;
 using CutTheRope.Framework.Media;
 using CutTheRope.Helpers;
 
+using Discord;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,7 +22,8 @@ namespace CutTheRope
 {
     public class Game1 : Game
     {
-        // (get) Token: 0x06000022 RID: 34 RVA: 0x00002517 File Offset: 0x00000717
+        public static RPCHelpers RPC { get; private set; }
+
         public Game1()
         {
             Global.XnaGame = this;
@@ -86,6 +89,7 @@ namespace CutTheRope
         {
             Preferences.RequestSave();
             Preferences.Update();
+            RPC?.Dispose();
         }
 
         private void Game1_Deactivated(object sender, EventArgs e)
@@ -101,10 +105,13 @@ namespace CutTheRope
 
         protected override void Initialize()
         {
+            RPC = new RPCHelpers();
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location)
                 .FileVersion ?? "Unknown";
             Window.Title = $"Cut The Rope: DX v{version}";
             base.Initialize();
+            RPC.Setup();
+            RPC.MenuPresence();
         }
 
         protected override void LoadContent()
@@ -234,6 +241,7 @@ namespace CutTheRope
             _ = Application.SharedRootController().MouseMoved(CtrRenderer.TransformX(mouseState.X), CtrRenderer.TransformY(mouseState.Y));
             CtrRenderer.Update(gameTime.ElapsedGameTime.Milliseconds / 1000f);
             base.Update(gameTime);
+            RPC.RunCallbacks();
         }
 
         public void DrawMovie()
@@ -321,5 +329,6 @@ namespace CutTheRope
         private TimeSpan elapsedTime = TimeSpan.Zero;
 
         private bool bFirstFrame = true;
+
     }
 }

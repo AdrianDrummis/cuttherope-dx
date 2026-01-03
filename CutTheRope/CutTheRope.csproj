@@ -46,6 +46,11 @@
     <None Remove="..\content\**\*.png" />
     <None Remove="..\content\sounds\sfx\*.wav" />
   </ItemGroup>
+    <ItemGroup>
+        <Content Include="discord_game_sdk.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="..\content\content.mgcb" />
   </ItemGroup>
