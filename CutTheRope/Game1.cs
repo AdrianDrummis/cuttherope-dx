@@ -12,8 +12,6 @@ using CutTheRope.Framework.Core;
 using CutTheRope.Framework.Media;
 using CutTheRope.Helpers;
 
-using Discord;
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
