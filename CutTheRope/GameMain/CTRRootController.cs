@@ -127,6 +127,8 @@ namespace CutTheRope.GameMain
                         }
                         LOG("activate child menu");
                         ActivateChild(1);
+                        //Show menu presence after loading screen
+                        Game1.RPC?.MenuPresence();
                         return;
                     }
                 case 1:

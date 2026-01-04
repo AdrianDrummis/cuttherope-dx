@@ -111,9 +111,8 @@ namespace CutTheRope
                 .FileVersion ?? "Unknown";
             Window.Title = $"Cut The Rope: DX v{version}";
             base.Initialize();
-            //Initialize RPC and show menu presence
+            //Initialize RPC
             RPC.Setup();
-            RPC.MenuPresence();
         }
 
         protected override void LoadContent()
