@@ -23,7 +23,7 @@ namespace CutTheRope.GameMain
             CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
             XElement map = cTRRootController.GetMap();
             
-            Game1.RPC?.SetLevelPresence(cTRRootController.GetPack(), cTRRootController.GetLevel());
+            Game1.RPC?.SetLevelPresence(cTRRootController.GetPack(), cTRRootController.GetLevel(), 0);
 
             float num = 3f;
             float num2 = 0f;

@@ -17,6 +17,7 @@ namespace CutTheRope.GameMain
             base.Update(delta);
             dd.Update(delta);
             pollenDrawer.Update(delta);
+            CTRRootController cTRRootController = (CTRRootController)Application.SharedRootController();
             for (int i = 0; i < 5; i++)
             {
                 for (int j = 0; j < fingerCuts[i].Count; j++)
@@ -443,6 +444,7 @@ namespace CutTheRope.GameMain
                     {
                         candyBlink.PlayTimeline(1);
                         starsCollected++;
+                        Game1.RPC?.SetLevelPresence(cTRRootController.GetPack(), cTRRootController.GetLevel(), starsCollected);
                         hudStar[starsCollected - 1].PlayTimeline(0);
                         Animation animation2 = Animation.Animation_createWithResID(Resources.Img.ObjStarDisappear);
                         animation2.DoRestoreCutTransparency();
