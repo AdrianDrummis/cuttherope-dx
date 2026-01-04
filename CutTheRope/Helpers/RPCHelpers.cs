@@ -65,7 +65,7 @@ namespace CutTheRope.Helpers
             Client.SetPresence(new RichPresence()
             {
                 Details = $"{Application.GetEnglishString($"BOX{pack + 1}_LABEL")}: {Application.GetEnglishString($"LEVEL")} {pack + 1}-{level + 1}",
-                State = $"Stars: {stars}/3",
+                State = $"⭐ {stars}/3",
                 Assets = new Assets()
                 {
                     SmallImageKey = $"pack_{pack + 1}",
