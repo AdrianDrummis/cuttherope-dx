@@ -43,6 +43,7 @@ namespace CutTheRope.GameMain
             StartCamera();
             tummyTeasers = 0;
             starsCollected = 0;
+            // Update RPC with current level info (on start/restart)
             Game1.RPC?.SetLevelPresence(cTRRootController.GetPack(), cTRRootController.GetLevel(), starsCollected);
             candyBubble = null;
             candyBubbleL = null;
