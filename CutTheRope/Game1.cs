@@ -20,6 +20,7 @@ namespace CutTheRope
 {
     public class Game1 : Game
     {
+        //RPC helper instance
         public static RPCHelpers RPC { get; private set; }
 
         public Game1()
@@ -87,6 +88,7 @@ namespace CutTheRope
         {
             Preferences.RequestSave();
             Preferences.Update();
+            //Dispose of RPC
             RPC?.Dispose();
         }
 
@@ -103,11 +105,13 @@ namespace CutTheRope
 
         protected override void Initialize()
         {
+            //Create RPC helper instance
             RPC = new RPCHelpers();
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location)
                 .FileVersion ?? "Unknown";
             Window.Title = $"Cut The Rope: DX v{version}";
             base.Initialize();
+            //Initialize RPC and show menu presence
             RPC.Setup();
             RPC.MenuPresence();
         }

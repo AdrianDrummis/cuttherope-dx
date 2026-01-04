@@ -12,6 +12,7 @@ namespace CutTheRope.Helpers
 
         //disable RPC entirely (recommended for mods that don't want to go through the hassle of setting it up)
         private readonly bool RPCEnabled = true;
+        //replace with your own Discord Application ID if needed
         private const string DISCORD_APP_ID = "1457063659724603457";
 
         public void MenuPresence()
