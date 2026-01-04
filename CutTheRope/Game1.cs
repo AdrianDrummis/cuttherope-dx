@@ -241,7 +241,6 @@ namespace CutTheRope
             _ = Application.SharedRootController().MouseMoved(CtrRenderer.TransformX(mouseState.X), CtrRenderer.TransformY(mouseState.Y));
             CtrRenderer.Update(gameTime.ElapsedGameTime.Milliseconds / 1000f);
             base.Update(gameTime);
-            RPC.RunCallbacks();
         }
 
         public void DrawMovie()

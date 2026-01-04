@@ -23,6 +23,7 @@
     <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.5.2" />
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.4.1" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.4.1" />
@@ -46,11 +47,6 @@
     <None Remove="..\content\**\*.png" />
     <None Remove="..\content\sounds\sfx\*.wav" />
   </ItemGroup>
-    <ItemGroup>
-        <Content Include="discord_game_sdk.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="..\content\content.mgcb" />
   </ItemGroup>
