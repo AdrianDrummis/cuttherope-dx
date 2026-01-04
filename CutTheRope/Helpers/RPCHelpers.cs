@@ -23,7 +23,6 @@ namespace CutTheRope.Helpers
             }
             Client.SetPresence(new RichPresence()
             {
-                Type = ActivityType.Playing,
                 Details = Application.GetEnglishString("RPC_MENU"),
                 Timestamps = new Timestamps()
                 {
@@ -41,6 +40,18 @@ namespace CutTheRope.Helpers
             }
             Client = new DiscordRpcClient(DISCORD_APP_ID);
             Client.Initialize();
+            if (Client == null)
+            {
+                return;
+            }
+            Client.SetPresence(new RichPresence()
+            {
+                Type = ActivityType.Playing,
+                Timestamps = new Timestamps()
+                {
+                    Start = GetOrCreateStartTime()
+                }
+            });
         }
 
         private DateTime GetOrCreateStartTime()
