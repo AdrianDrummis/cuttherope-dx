@@ -1042,4 +1042,10 @@ Assistance juridique : Hughes Media Law Group</fr>
     <br>Cordas</br>
     <zh_tw>繩索</zh_tw>
   </string>
+  <string name="RPC_MENU">
+    <en>Browsing Menus</en>
+    <ru>Browsing Menus</ru>
+    <fr>Navigation dans les menus</fr>
+    <de>Menus durchsuchen</de>
+  </string>
 </strings>

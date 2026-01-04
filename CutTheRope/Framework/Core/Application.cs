@@ -198,6 +198,36 @@ namespace CutTheRope.Framework.Core
             return string.Empty;
         }
 
+        internal static string GetEnglishString(string xmlElementName)
+        {
+            string xmlContent = GetXml(xmlElementName);
+            if (string.IsNullOrEmpty(xmlContent))
+            {
+                return string.Empty;
+            }
+
+            // Always get the English string
+            string wrappedXml = $"<root>{xmlContent}</root>";
+            XDocument doc = XDocument.Parse(wrappedXml);
+            XElement languageElement;
+
+            try
+            {
+                languageElement = doc.Root?.Element("en");
+                if (languageElement != null)
+                {
+                    return languageElement.Value.Trim();
+                }
+            }
+            catch
+            {
+                // If XML parsing fails, return empty string
+                return string.Empty;
+            }
+
+            return string.Empty;
+        }
+
         public virtual void UpdateOrientation()
         {
             PORTRAIT_SCREEN_WIDTH = 2560f;

@@ -1,7 +1,12 @@
 using System;
-using System.IO.Packaging;
+
+using CutTheRope.Framework;
+using CutTheRope.Framework.Core;
+using CutTheRope.GameMain;
+using CutTheRope.Framework.Visual;
 
 using Discord;
+
 
 namespace CutTheRope.Helpers
 {
@@ -9,17 +14,25 @@ namespace CutTheRope.Helpers
     {
         public Discord.Discord discord;
         public ActivityManager activityManager;
+        private long? startTimestamp;
+
+        //disable RPC entirely (recommended for mods that don't want to go through the hassle of setting it up)
+        private readonly bool RPCEnabled = true;
         public void MenuPresence()
         {
-            if (activityManager == null)
+            if (activityManager == null || !RPCEnabled)
             {
                 return;
             }
 
             Activity activity = new()
             {
-                Details = "Browsing Menus",
-                Instance = true
+                Details = Application.GetEnglishString("RPC_MENU"),
+                Instance = true,
+                Timestamps = new ActivityTimestamps
+                {
+                    Start = GetOrCreateStartTime()
+                }
             };
 
             activityManager.UpdateActivity(activity, result =>
@@ -30,12 +43,17 @@ namespace CutTheRope.Helpers
 
         public void Setup()
         {
+            if (!RPCEnabled)
+            {
+                return;
+            }
             try
             {
                 discord = new(
                     1457063659724603457,
                     (ulong)CreateFlags.NoRequireDiscord
                 );
+
                 activityManager = discord.GetActivityManager();
                 MenuPresence();
             }
@@ -48,6 +66,10 @@ namespace CutTheRope.Helpers
 
         public void RunCallbacks()
         {
+            if (!RPCEnabled)
+            {
+                return;
+            }
             try
             {
                 discord?.RunCallbacks();
@@ -58,23 +80,38 @@ namespace CutTheRope.Helpers
             }
         }
 
+        private long GetOrCreateStartTime()
+        {
+            startTimestamp ??= DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            return startTimestamp.Value;
+        }
+
         public void Dispose()
         {
             discord?.Dispose();
             discord = null;
+            GC.SuppressFinalize(this);
         }
 
         public void SetLevelPresence(int pack, int level)
         {
-            if (activityManager == null)
+            if (activityManager == null || !RPCEnabled || (Application.GetEnglishString($"BOX{pack + 1}_LABEL") == null))
             {
                 return;
             }
-
             Activity activity = new()
             {
-                Details = $"Level {pack + 1} - {level + 1}",
-                Instance = true
+                Details = $"{Application.GetEnglishString($"BOX{pack + 1}_LABEL")}: {Application.GetEnglishString($"LEVEL")} {pack + 1}-{level + 1}",
+                Instance = true,
+
+                Assets = new ActivityAssets
+                {
+                    SmallImage = $"pack_{pack + 1}"
+                },
+                Timestamps = new ActivityTimestamps
+                {
+                    Start = GetOrCreateStartTime()
+                }
             };
 
             activityManager.UpdateActivity(activity, result =>
