@@ -57,12 +57,22 @@ namespace CutTheRope.GameMain
                 playLevelScroll = false;
             }
             SetIntForKey(2, "PREFS_VERSION", true);
+            SetRpcPreferenceInJson(); // temporary hack, remove after setting UI is implemented
         }
 
         private static void ResetMusicSound()
         {
             SetBooleanForKey(true, "SOUND_ON", true);
             SetBooleanForKey(true, "MUSIC_ON", true);
+        }
+
+        // temporary hack, remove after setting UI is implemented
+        private static void SetRpcPreferenceInJson()
+        {
+            if (!ContainsKey(PREFS_RPC_ENABLED))
+            {
+                SetBooleanForKey(true, PREFS_RPC_ENABLED, true);
+            }
         }
 
         private static bool IsShareware()
