@@ -146,7 +146,7 @@ namespace CutTheRope.Framework.Core
                 $"Texture '{resolvedName}' could not be loaded. Ensure the resource name is correct and the asset is registered in TexturePackerRegistry.json.");
         }
 
-        internal static string GetString(string xmlElementName)
+        internal static string GetString(string xmlElementName, bool forceEnglish = false)
         {
             string xmlContent = GetXml(xmlElementName);
             if (string.IsNullOrEmpty(xmlContent))
@@ -155,16 +155,18 @@ namespace CutTheRope.Framework.Core
             }
 
             // Parse the XML to get the correct language
-            string languageCode = LANGUAGE switch
-            {
-                Language.LANGEN => "en",
-                Language.LANGRU => "ru",
-                Language.LANGDE => "de",
-                Language.LANGFR => "fr",
-                Language.LANGZH => "zh",
-                Language.LANGJA => "ja",
-                _ => "en",
-            };
+            string languageCode = forceEnglish
+                ? "en"
+                : LANGUAGE switch
+                {
+                    Language.LANGEN => "en",
+                    Language.LANGRU => "ru",
+                    Language.LANGDE => "de",
+                    Language.LANGFR => "fr",
+                    Language.LANGZH => "zh",
+                    Language.LANGJA => "ja",
+                    _ => "en",
+                };
 
             try
             {
@@ -180,43 +182,13 @@ namespace CutTheRope.Framework.Core
                 }
 
                 // Fallback: try English if current language not found
-                if (languageCode != "en")
+                if (!forceEnglish && languageCode != "en")
                 {
                     languageElement = doc.Root?.Element("en");
                     if (languageElement != null)
                     {
                         return languageElement.Value.Trim();
                     }
-                }
-            }
-            catch
-            {
-                // If XML parsing fails, return empty string
-                return string.Empty;
-            }
-
-            return string.Empty;
-        }
-
-        internal static string GetEnglishString(string xmlElementName)
-        {
-            string xmlContent = GetXml(xmlElementName);
-            if (string.IsNullOrEmpty(xmlContent))
-            {
-                return string.Empty;
-            }
-
-            // Always get the English string
-            string wrappedXml = $"<root>{xmlContent}</root>";
-            XDocument doc = XDocument.Parse(wrappedXml);
-            XElement languageElement;
-
-            try
-            {
-                languageElement = doc.Root?.Element("en");
-                if (languageElement != null)
-                {
-                    return languageElement.Value.Trim();
                 }
             }
             catch
