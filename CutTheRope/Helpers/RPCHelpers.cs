@@ -42,8 +42,10 @@ namespace CutTheRope.Helpers
             {
                 return;
             }
+
             Client = new DiscordRpcClient(DISCORD_APP_ID);
             Client.Initialize();
+
             if (Client == null)
             {
                 return;
@@ -93,9 +95,6 @@ namespace CutTheRope.Helpers
                     Start = GetOrCreateStartTime()
                 }
             });
-
         }
-
-
     }
 }
