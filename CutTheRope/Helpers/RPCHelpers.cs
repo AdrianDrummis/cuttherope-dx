@@ -20,7 +20,7 @@ namespace CutTheRope.Helpers
 
         public void MenuPresence()
         {
-            if (Client == null || !RPCEnabled)
+            if (Client == null || !RPCEnabled || !Client.IsInitialized)
             {
                 return;
             }
@@ -46,7 +46,7 @@ namespace CutTheRope.Helpers
             Client = new DiscordRpcClient(DISCORD_APP_ID);
             Client.Initialize();
 
-            if (Client == null)
+            if (!Client.IsInitialized)
             {
                 return;
             }
@@ -76,7 +76,7 @@ namespace CutTheRope.Helpers
 
         public void SetLevelPresence(int pack, int level, int stars)
         {
-            if (Client == null || !RPCEnabled || (Application.GetEnglishString($"BOX{pack + 1}_LABEL") == null))
+            if (Client == null || !RPCEnabled || !Client.IsInitialized || (Application.GetEnglishString($"BOX{pack + 1}_LABEL") == null))
             {
                 return;
             }
