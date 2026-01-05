@@ -68,6 +68,7 @@ namespace CutTheRope.Helpers
 
         public void Dispose()
         {
+            Client?.ClearPresence();
             Client?.Dispose();
             Client = null;
             GC.SuppressFinalize(this);
