@@ -1,4 +1,5 @@
 using System;
+
 using CutTheRope.Framework.Core;
 using CutTheRope.GameMain;
 
@@ -70,7 +71,7 @@ namespace CutTheRope.Helpers
             GC.SuppressFinalize(this);
         }
 
-        public void SetLevelPresence(int pack, int level,int stars)
+        public void SetLevelPresence(int pack, int level, int stars)
         {
             if (Client == null || !RPCEnabled || (Application.GetEnglishString($"BOX{pack + 1}_LABEL") == null))
             {
