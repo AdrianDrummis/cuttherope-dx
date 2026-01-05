@@ -293,7 +293,7 @@ namespace CutTheRope.GameMain
 
             // Update RPC to show win state with stars and score
             CTRRootController ctrRoot = (CTRRootController)Application.SharedRootController();
-            Game1.RPC.SetLevelPresence(ctrRoot.GetPack(), ctrRoot.GetLevel(), gameScene.starsCollected, true, gameScene.score);
+            Game1.RPC.SetLevelPresence(ctrRoot.GetPack(), ctrRoot.GetLevel(), gameScene.starsCollected, true, gameScene.score, (int)gameScene.time);
 
             UnlockNextLevel();
         }
