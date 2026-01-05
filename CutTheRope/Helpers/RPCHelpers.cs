@@ -1,5 +1,7 @@
 using System;
 using CutTheRope.Framework.Core;
+using CutTheRope.GameMain;
+
 using DiscordRPC;
 
 
@@ -24,6 +26,7 @@ namespace CutTheRope.Helpers
             Client.SetPresence(new RichPresence()
             {
                 Details = Application.GetEnglishString("RPC_MENU"),
+                State = $"⭐ Total: {CTRPreferences.GetTotalStars()}",
                 Timestamps = new Timestamps()
                 {
                     Start = GetOrCreateStartTime()
