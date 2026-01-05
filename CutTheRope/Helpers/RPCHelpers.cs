@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using CutTheRope.Framework.Core;
 using CutTheRope.GameMain;
@@ -78,7 +79,7 @@ namespace CutTheRope.Helpers
             GC.SuppressFinalize(this);
         }
 
-        public void SetLevelPresence(int pack, int level, int stars, bool isWon = false, int? score = null)
+        public void SetLevelPresence(int pack, int level, int stars, bool isWon = false, int? score = null, int? time = null)
         {
             if (Client == null || !IsRpcEnabled || !Client.IsInitialized || (Application.GetString($"BOX{pack + 1}_LABEL", forceEnglish: true) == null))
             {
@@ -88,9 +89,24 @@ namespace CutTheRope.Helpers
             string currentStars = $"⭐ {stars}/3";
             string state = currentStars;
 
-            if (isWon && score.HasValue)
+            if (isWon)
             {
-                state += $" | 🔢 {score.Value}";
+                List<string> parts = [];
+                if (time.HasValue)
+                {
+                    // Format time as MM:SS
+                    int minutes = time.Value / 60;
+                    int seconds = time.Value % 60;
+                    parts.Add($"⏱️ {minutes:D2}:{seconds:D2}");
+                }
+                if (score.HasValue)
+                {
+                    parts.Add($"🔢 {score.Value}");
+                }
+                if (parts.Count > 0)
+                {
+                    state += " | " + string.Join(" | ", parts);
+                }
             }
 
             Client.SetPresence(new RichPresence()
