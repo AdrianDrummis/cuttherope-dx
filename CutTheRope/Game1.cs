@@ -329,6 +329,5 @@ namespace CutTheRope
         private TimeSpan elapsedTime = TimeSpan.Zero;
 
         private bool bFirstFrame = true;
-
     }
 }
