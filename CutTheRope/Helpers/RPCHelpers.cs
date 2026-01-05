@@ -44,7 +44,7 @@ namespace CutTheRope.Helpers
             }
 
             Client = new DiscordRpcClient(DISCORD_APP_ID);
-            Client.Initialize();
+            _ = Client.Initialize();
 
             if (!Client.IsInitialized)
             {
