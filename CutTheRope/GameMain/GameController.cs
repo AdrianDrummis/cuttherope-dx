@@ -171,7 +171,7 @@ namespace CutTheRope.GameMain
 
         public void BoxClosed()
         {
-            CTRPreferences cTRPreferences = Application.SharedPreferences();
+            _ = Application.SharedPreferences();
             CTRRootController ctrrootController = (CTRRootController)Application.SharedRootController();
             int pack = ctrrootController.GetPack();
             _ = ctrrootController.GetLevel();
