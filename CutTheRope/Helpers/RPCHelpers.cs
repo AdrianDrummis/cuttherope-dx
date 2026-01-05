@@ -78,17 +78,25 @@ namespace CutTheRope.Helpers
             GC.SuppressFinalize(this);
         }
 
-        public void SetLevelPresence(int pack, int level, int stars)
+        public void SetLevelPresence(int pack, int level, int stars, bool isWon = false, int? score = null)
         {
             if (Client == null || !IsRpcEnabled || !Client.IsInitialized || (Application.GetString($"BOX{pack + 1}_LABEL", forceEnglish: true) == null))
             {
                 return;
             }
 
+            string currentStars = $"⭐ {stars}/3";
+            string state = currentStars;
+
+            if (isWon && score.HasValue)
+            {
+                state += $" | 🔢 {score.Value}";
+            }
+
             Client.SetPresence(new RichPresence()
             {
                 Details = $"{Application.GetString($"BOX{pack + 1}_LABEL", forceEnglish: true)}: {Application.GetString($"LEVEL", forceEnglish: true)} {pack + 1}-{level + 1}",
-                State = $"⭐ {stars}/3",
+                State = state,
                 Assets = new Assets()
                 {
                     SmallImageKey = $"pack_{pack + 1}",
