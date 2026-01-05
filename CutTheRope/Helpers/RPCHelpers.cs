@@ -13,14 +13,18 @@ namespace CutTheRope.Helpers
         public DiscordRpcClient Client { get; private set; }
         private DateTime? startTimestamp;
 
-        //disable RPC entirely (recommended for mods that don't want to go through the hassle of setting it up)
-        private const bool RPCEnabled = true;
+        // Check if RPC is enabled in the save file
+        // By default, RPC is enabled
+        // Exposing in a save file is to make way for later setting UI integration
+        private static bool IsRpcEnabled =>
+            Preferences.GetBooleanForKey(CTRPreferences.PREFS_RPC_ENABLED);
+
         //replace with your own Discord Application ID if needed
         private readonly string DISCORD_APP_ID = "1457063659724603457";
 
         public void MenuPresence()
         {
-            if (Client == null || !RPCEnabled || !Client.IsInitialized)
+            if (Client == null || !IsRpcEnabled || !Client.IsInitialized)
             {
                 return;
             }
@@ -38,7 +42,7 @@ namespace CutTheRope.Helpers
 
         public void Setup()
         {
-            if (!RPCEnabled)
+            if (!IsRpcEnabled)
             {
                 return;
             }
@@ -76,7 +80,7 @@ namespace CutTheRope.Helpers
 
         public void SetLevelPresence(int pack, int level, int stars)
         {
-            if (Client == null || !RPCEnabled || !Client.IsInitialized || (Application.GetString($"BOX{pack + 1}_LABEL", forceEnglish: true) == null))
+            if (Client == null || !IsRpcEnabled || !Client.IsInitialized || (Application.GetString($"BOX{pack + 1}_LABEL", forceEnglish: true) == null))
             {
                 return;
             }
