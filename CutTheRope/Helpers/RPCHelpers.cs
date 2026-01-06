@@ -57,7 +57,6 @@ namespace CutTheRope.Helpers
             }
             Client.SetPresence(new RichPresence()
             {
-                Type = ActivityType.Playing,
                 Timestamps = new Timestamps()
                 {
                     Start = GetOrCreateStartTime()
@@ -115,9 +114,7 @@ namespace CutTheRope.Helpers
                 State = state,
                 Assets = new Assets()
                 {
-                    SmallImageKey = $"pack_{pack + 1}",
-                    //this library has a bug where it doesn't allow you to only set the small icon so it flickers when loading the new large image :(
-                    LargeImageKey = "icon"
+                    SmallImageKey = $"pack_{pack + 1}"
                 },
                 Timestamps = new Timestamps()
                 {
