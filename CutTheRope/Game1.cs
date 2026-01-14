@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Threading;
@@ -107,8 +106,12 @@ namespace CutTheRope
         {
             //Create RPC helper instance
             RPC = new RPCHelpers();
-            string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location)
-                .FileVersion ?? "Unknown";
+            string version =
+                Assembly.GetExecutingAssembly()
+                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                    ?.InformationalVersion
+                ?? Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+                ?? "Unknown";
             Window.Title = $"Cut The Rope: DX v{version}";
             base.Initialize();
             //Initialize RPC
