@@ -114,7 +114,8 @@ namespace CutTheRope.Helpers
                 State = state,
                 Assets = new Assets()
                 {
-                    SmallImageKey = $"pack_{pack + 1}"
+                    SmallImageKey = $"pack_{pack + 1}",
+                    SmallImageText = $"{Application.GetString($"BOX{pack + 1}_LABEL", forceEnglish: true)}"
                 },
                 Timestamps = new Timestamps()
                 {
