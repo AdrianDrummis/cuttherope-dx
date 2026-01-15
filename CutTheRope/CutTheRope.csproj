@@ -55,7 +55,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiscordRichPresence" Version="1.6.2.72" />
+    <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
     <PackageReference
       Include="FontStashSharp.MonoGame"
       Version="1.5.2"
