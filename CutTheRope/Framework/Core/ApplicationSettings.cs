@@ -16,40 +16,31 @@ namespace CutTheRope.Framework.Core
             return value;
         }
 
+        /// <summary>
+        /// Gets a string application setting.
+        /// </summary>
+        /// <param name="s">The setting identifier (see <see cref="AppSettings"/>).</param>
+        /// <returns>The locale code if <c>s</c> is <see cref="AppSettings.APP_SETTING_LOCALE"/>, otherwise an empty string.</returns>
         public string GetString(int s)
         {
-            return s != 8
-                ? ""
-                : locale ?? LANGUAGE switch
-                {
-                    Language.LANGEN => "en",
-                    Language.LANGRU => "ru",
-                    Language.LANGDE => "de",
-                    Language.LANGFR => "fr",
-                    Language.LANGZH => "zh",
-                    Language.LANGJA => "ja",
-                    _ => "en",
-                };
+            return s != (int)AppSettings.APP_SETTING_LOCALE ? "" : locale ?? LanguageHelper.CurrentCode;
         }
 
+        /// <summary>
+        /// Sets a string application setting.
+        /// </summary>
+        /// <param name="sid">The setting identifier (see <see cref="AppSettings"/>).</param>
+        /// <param name="str">The string value to set.</param>
+        /// <remarks>
+        /// Currently only <see cref="AppSettings.APP_SETTING_LOCALE"/> is supported.
+        /// Setting the locale also updates <see cref="LanguageHelper.Current"/>.
+        /// </remarks>
         public void SetString(int sid, string str)
         {
-            if (sid == 8)
+            if (sid == (int)AppSettings.APP_SETTING_LOCALE)
             {
-                locale = str.ToString();
-                LANGUAGE = Language.LANGEN;
-                if (locale == "ru")
-                {
-                    LANGUAGE = Language.LANGRU;
-                }
-                else if (locale == "de")
-                {
-                    LANGUAGE = Language.LANGDE;
-                }
-                if (locale == "fr")
-                {
-                    LANGUAGE = Language.LANGFR;
-                }
+                locale = str;
+                LanguageHelper.Current = LanguageHelper.FromCode(locale);
             }
         }
 

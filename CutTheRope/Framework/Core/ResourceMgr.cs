@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 
 using CutTheRope.Framework.Helpers;
@@ -78,7 +77,7 @@ namespace CutTheRope.Framework.Core
                 return value;
             }
 
-            string path = resType != ResourceType.STRINGS ? CTRResourceMgr.XNA_ResName(resourceName) : "";
+            string path = CTRResourceMgr.XNA_ResName(resourceName);
             bool flag = false;
             float scaleX = GetNormalScaleX(resId);
             float scaleY = GetNormalScaleY(resId);
@@ -98,12 +97,6 @@ namespace CutTheRope.Framework.Core
                     break;
                 case ResourceType.SOUND:
                     value = LoadSoundInfo(path);
-                    break;
-                case ResourceType.STRINGS:
-                    {
-                        string strValue = LoadStringsInfo(resId);
-                        value = strValue.Replace('\u00a0', ' ');
-                    }
                     break;
                 case ResourceType.BINARY:
                     break;
@@ -146,48 +139,16 @@ namespace CutTheRope.Framework.Core
             return new FrameworkTypes();
         }
 
-        public string LoadStringsInfo(int key)
-        {
-            key &= 65535;
-            xmlStrings ??= XElementExtensions.LoadContentXml("menu_strings.xml");
-            XElement xMLNode = null;
-            try
-            {
-                xMLNode = xmlStrings?.Elements().ElementAtOrDefault(key);
-            }
-            catch (Exception)
-            {
-            }
-            if (xMLNode != null)
-            {
-                string tag = "en";
-                if (LANGUAGE == Language.LANGRU)
-                {
-                    tag = "ru";
-                }
-                if (LANGUAGE == Language.LANGFR)
-                {
-                    tag = "fr";
-                }
-                if (LANGUAGE == Language.LANGDE)
-                {
-                    tag = "de";
-                }
-                XElement xMLNode2 = xMLNode.FindChildWithTagNameRecursively(tag, false);
-                xMLNode2 ??= xMLNode.FindChildWithTagNameRecursively("en", false);
-                return xMLNode2?.ValueAsNSString() ?? string.Empty;
-            }
-            return string.Empty;
-        }
-
         public virtual FontGeneric LoadVariableFontInfo(string path, int resID, bool isWvga)
         {
             // Check if user prefers old font system for supported languages (en, de, fr, ru)
             bool preferOldFontSystem = Preferences.GetBooleanForKey("PREFS_PREFER_OLD_FONT_SYSTEM");
-            bool isLanguageSupported = LANGUAGE is Language.LANGEN or
-                                       Language.LANGDE or
-                                       Language.LANGFR or
-                                       Language.LANGRU;
+            bool isLanguageSupported = LanguageHelper.IsCurrentAny(
+                Language.LANGEN,
+                Language.LANGDE,
+                Language.LANGFR,
+                Language.LANGRU
+            );
 
             if (preferOldFontSystem && isLanguageSupported)
             {
@@ -204,7 +165,7 @@ namespace CutTheRope.Framework.Core
             }
 
             // Load FontStashSharp font using the new system
-            FontConfiguration config = Resources.FontConfig.GetConfiguration(resourceName, (int)LANGUAGE);
+            FontConfiguration config = Resources.FontConfig.GetConfiguration(resourceName, LanguageHelper.CurrentAsInt);
             FontStashFont fontStashFont = FontManager.LoadFont(
                 config.FontFile,
                 config.Size,
@@ -659,7 +620,7 @@ namespace CutTheRope.Framework.Core
             ((ResourceMgr)obj).Update();
         }
 
-        private void LoadResource(int resId)
+        private static void LoadResource(int resId)
         {
             if (!TryResolveResource(resId, out int localizedResId, out string localizedName))
             {
@@ -668,7 +629,7 @@ namespace CutTheRope.Framework.Core
 
             if (localizedName == Resources.Str.MenuStrings)
             {
-                xmlStrings ??= XElementExtensions.LoadContentXml("menu_strings.xml");
+                LocalizationManager.EnsureLoaded();
                 return;
             }
             if (Resources.IsSound(localizedName))
@@ -699,7 +660,7 @@ namespace CutTheRope.Framework.Core
 
             if (localizedName == Resources.Str.MenuStrings)
             {
-                xmlStrings = null;
+                LocalizationManager.ClearCache();
                 return;
             }
             if (Resources.IsSound(localizedName))
@@ -741,8 +702,6 @@ namespace CutTheRope.Framework.Core
         /// <summary>Stores all cached resources (textures, fonts, sounds, strings)</summary>
         private readonly Dictionary<int, object> s_Resources = [];
 
-        private XElement xmlStrings;
-
         private int loaded;
 
         private int loadCount;
@@ -757,7 +716,6 @@ namespace CutTheRope.Framework.Core
             FONT,
             SOUND,
             BINARY,
-            STRINGS,
             ELEMENT
         }
     }
