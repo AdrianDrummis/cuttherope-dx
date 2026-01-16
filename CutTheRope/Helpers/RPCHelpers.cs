@@ -31,7 +31,7 @@ namespace CutTheRope.Helpers
             }
             Client.SetPresence(new RichPresence()
             {
-                Details = Application.GetString("RPC_MENU", forceEnglish: true),
+                Details = "Browsing Menu",
                 State = $"⭐ Total: {CTRPreferences.GetTotalStars()}",
                 Timestamps = new Timestamps()
                 {
